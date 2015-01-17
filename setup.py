@@ -54,6 +54,7 @@ setup(
         'setuptools',
         'pytest',
         'pytest-xdist',
+        'six',
     ],
     classifiers=[
         'Development Status :: 6 - Mature',

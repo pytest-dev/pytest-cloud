@@ -41,13 +41,25 @@ Command-line options
 * `--cloud-node`
     Node host name to run tests on. Multiple allowed.
 
+* `--cloud-virtualenv-path`
+    Optional relative path to the virtualenv to be used on the remote test nodes.
+
+* `--cloud-mem-per-process`
+    Optional amount of memory roughly needed for test process, in megabytes.
+    Will be used to calculate amount of test processes per node, getting the free memory, dividing it for the memory
+    per process needed, and getting the minimum of that value and the number of CPU cores of the test node.
+
+* `--cloud-max-processes`
+    Optional maximum number of processes per test node. Overrides from above the calculated number
+    of processes using memory and number of CPU cores.
+
 
 Example
 -------
 
 .. code-block:: sh
 
-    py.test tests --cloud-node=10.0.120.{1..40}
+    py.test tests/ --cloud-node=10.0.120.{1..40} --cloud-mem-per-process=1000 --cloud-virtualenv-path=.env/ --rsyncdir=. --rsyncdir=.env
 
 
 Contact
