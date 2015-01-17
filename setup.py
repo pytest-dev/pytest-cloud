@@ -12,7 +12,7 @@ dirname = os.path.dirname(__file__)
 
 long_description = (
     codecs.open(os.path.join(dirname, 'README.rst'), encoding='utf-8').read() + '\n' +
-    codecs.open(os.path.join(dirname, 'AUTHORS.rst'), encoding='utf-8').read() + '\n' +
+    codecs.open(os.path.join(dirname, 'AUTHORSs.rst'), encoding='utf-8').read() + '\n' +
     codecs.open(os.path.join(dirname, 'CHANGES.rst'), encoding='utf-8').read()
 )
 
