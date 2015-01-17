@@ -5,13 +5,7 @@ Welcome to pytest-cloud's documentation!
 
 .. include:: ../README.rst
 
-Internal API
-============
-
-.. toctree::
-    :maxdepth: 1
-
-    api/index
+.. include:: api/index.rst
 
 .. include:: ../AUTHORS.rst
 
