@@ -30,7 +30,13 @@ Features
 The plugin provides an easy way of running tests amoung several test nodes (slaves).
 Uses the great pytest-xdist_ plugin for actual distributed run.
 When used, it will automatically detect capabilites of given node(s) and run only the number of test processes it is
-able to handle.
+able to handle. If will also filter out offline nodes or nodes which were failed to respond to the
+capabilities aquisition call.
+
+Supports automatic virtualenv activation on the test node so you don't have to install python dependencies
+for your project on remote test nodes globally - just make sure that your virtualenv folder is `inside`
+your project folder - that's a requirement, and then pass it's relative path as a parameter (see below).
+
 ATM only ssh transport is supported. So ensure that you have at least public key auth enabled to your test nodes
 from the master node (where py.test is executed).
 
@@ -59,7 +65,7 @@ Example
 
 .. code-block:: sh
 
-    py.test tests/ --cloud-node=10.0.120.{1..40} --cloud-mem-per-process=1000 --cloud-virtualenv-path=.env/ --rsyncdir=. --rsyncdir=.env
+    py.test tests/ --cloud-node=10.0.120.{1..40} --cloud-mem-per-process=1000 --cloud-virtualenv-path=.env/ --rsyncdir=.
 
 
 Contact

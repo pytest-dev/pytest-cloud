@@ -59,12 +59,16 @@ def test_schedule(
         (ch1, {'cpu_count': cpu_count1, 'virtual_memory': {'free': memory1 * 1024 ** 2}}),
         (ch2, {'cpu_count': cpu_count2, 'virtual_memory': {'free': memory2 * 1024 ** 2}}),
     ]
-    params = ['--cloud-node={0}'.format(node1), '--cloud-node={0}'.format(node2)]
+    params = ['--cloud-node={0}'.format(node1), '--cloud-node={0}'.format(node2), '--cloud-virtualenv-path=.env']
     if mem_per_process:
         params.append('--cloud-mem-per-process={0}'.format(mem_per_process))
     if max_processes:
         params.append('--cloud-max-processes={0}'.format(max_processes))
     testdir.inline_run(*params)
+    assert mocked_rsync.call_args[0] == ('.env',)
+    assert mocked_rsync.return_value.add_target.call_args[0][1] == '.env'
+    assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
     assert config.option.tx == result
     assert config.option.dist == 'load'
+    assert config.option.rsyncdir == ['.env']

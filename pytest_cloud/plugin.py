@@ -69,6 +69,8 @@ def activate_env(channel, virtualenv_path):
     :type virtualenv_path: str
     """
     import os.path
+    import six
+
     if virtualenv_path:
         activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
         if six.PY3:
@@ -185,10 +187,13 @@ def check_options(config):
         mem_per_process = config.option.cloud_mem_per_process
         if mem_per_process:
             mem_per_process = mem_per_process * 1024 * 1024
+        virtualenv_path = config.option.cloud_virtualenv_path
         node_specs = get_nodes_specs(
             config.option.cloud_nodes,
-            virtualenv_path=config.option.cloud_virtualenv_path,
+            virtualenv_path=virtualenv_path,
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process)
+        if virtualenv_path:
+            config.option.rsyncdir += [virtualenv_path]
         config.option.tx += node_specs
         config.option.dist = 'load'
