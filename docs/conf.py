@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pytest-cloud'
-AUTHOR = 'Anatoly Bubenkov'
+AUTHOR = 'Anatoly Bubenkov and others'
 copyright = u'2015, ' + AUTHOR
 
 # The version info for the project you're documenting, acts as replacement for

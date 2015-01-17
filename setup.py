@@ -12,6 +12,7 @@ dirname = os.path.dirname(__file__)
 
 long_description = (
     codecs.open(os.path.join(dirname, 'README.rst'), encoding='utf-8').read() + '\n' +
+    codecs.open(os.path.join(dirname, 'AUTHORS.rst'), encoding='utf-8').read() + '\n' +
     codecs.open(os.path.join(dirname, 'CHANGES.rst'), encoding='utf-8').read()
 )
 
@@ -41,9 +42,9 @@ class Tox(TestCommand):
 
 setup(
     name='pytest-cloud',
-    description='Distributed tests planner plugin for pytest testing framework',
+    description='Distributed tests planner plugin for pytest testing framework.',
     long_description=long_description,
-    author='Anatoly Bubenkov',
+    author='Anatoly Bubenkov and others',
     license='MIT license',
     author_email='bubenkoff@gmail.com',
     version=pytest_cloud.__version__,
