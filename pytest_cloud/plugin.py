@@ -62,6 +62,11 @@ def activate_env(channel, virtualenv_path):
     """Activate virtual environment.
 
     Executed on the remote side.
+
+    :param channel: execnet channel for communication with master node
+    :type channel: execnet.gateway_base.Channel
+    :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
+    :type virtualenv_path: str
     """
     import os.path
     if virtualenv_path:
@@ -73,9 +78,15 @@ def activate_env(channel, virtualenv_path):
 
 
 def get_node_capabilities(channel):
-    """Get node capabilities.
+    """Get test node capabilities.
 
     Executed on the remote side.
+
+    :param channel: execnet channel for communication with master node
+    :type channel: execnet.gateway_base.Channel
+
+    :return: `dict` in form {'cpu_count': 1, 'virtual_memory': {'free': 100, 'total': 200}}
+    :rtype: dict
     """
     import psutil
     memory = psutil.virtual_memory()
@@ -84,7 +95,22 @@ def get_node_capabilities(channel):
 
 
 def get_node_specs(node, host, caps, mem_per_process=None, max_processes=None):
-    """Get single node specs."""
+    """Get single node specs.
+
+    Executed on the master node side.
+
+    :param node: node name in form <username>@<hostname>
+    :type node: str
+    :param host: hostname of the node
+    :type host: str
+    :param mem_per_process: optional amount of memory per process needed, in megabytest
+    :type mem_per_process: int
+    :param max_processes: optional maximum number of processes per test node
+    :type max_processes: int
+
+    :return: `list` of test gateway specs for single test node in form ['1*ssh=<node>//id=<hostname>:<index>', ...]
+    :rtype: list
+    """
     count = min(max_processes or six.MAXSIZE, caps['cpu_count'])
     if mem_per_process:
         count = min(int(math.floor(caps['virtual_memory']['free'] / mem_per_process)), count)
@@ -98,7 +124,25 @@ def get_node_specs(node, host, caps, mem_per_process=None, max_processes=None):
 
 
 def get_nodes_specs(nodes, virtualenv_path=None, mem_per_process=None, max_processes=None):
-    """Get nodes specs."""
+    """Get nodes specs.
+
+    Get list of node names, connect to each of them, get the system information, produce the list of node specs out of
+    that information filtering non-connectable nodes and nodes which don't comply the requirements.
+    Executed on the master node side.
+
+    :param nodes: `list` of node names in form [[<username>@]<hostname>, ...]
+    :type nodes: list
+    :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
+    :type virtualenv_path: str
+    :param mem_per_process: optional amount of memory per process needed, in megabytest
+    :type mem_per_process: int
+    :param max_processes: optional maximum number of processes per test node
+    :type max_processes: int
+
+    :return: `list` of test gateway specs for all test nodes which confirm given requirements
+        in form ['1*ssh=<node>//id=<hostname>:<index>', ...]
+    :rtype: list
+    """
     group = execnet.Group()
     if virtualenv_path:
         rsync = execnet.RSync(virtualenv_path)
