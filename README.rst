@@ -47,7 +47,7 @@ Example
 
 .. code-block:: sh
 
-    py.test tests --cloud-node 10.0.120.{1..40}
+    py.test tests --cloud-node=10.0.120.{1..40}
 
 
 Contact
