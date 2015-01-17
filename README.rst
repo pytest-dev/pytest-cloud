@@ -54,7 +54,7 @@ Contact
 -------
 
 If you have questions, bug reports, suggestions, etc. please create an issue on
-the `GitHub project page <http://github.com/paylogic/pytest-cloud>`_.
+the `GitHub project page <http://github.com/pytest-dev/pytest-cloud>`_.
 
 
 License
@@ -62,7 +62,7 @@ License
 
 This software is licensed under the `MIT license <http://en.wikipedia.org/wiki/MIT_License>`_
 
-See `License file <https://github.com/paylogic/pytest-cloud/blob/master/LICENSE.txt>`_
+See `License file <https://github.com/pytest-dev/pytest-cloud/blob/master/LICENSE.txt>`_
 
 
 © 2015 Anatoly Bubenkov and others.
