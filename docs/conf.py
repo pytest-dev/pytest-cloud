@@ -189,7 +189,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'pytest-splinter.tex', u'pytest-splinter Documentation', AUTHOR, 'manual'),
+    ('index', 'pytest-cloud.tex', u'pytest-cloud Documentation', AUTHOR, 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -218,7 +218,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pytest-splinter', u'pytest-cloud Documentation',
+    ('index', 'pytest-cloud', u'pytest-cloud Documentation',
      [AUTHOR], 1)
 ]
 
