@@ -47,6 +47,10 @@ Command-line options
 * `--cloud-node`
     Node host name to run tests on. Multiple allowed.
 
+* `--cloud-python`
+    Optional python executable name to be used on the remote test nodes.
+    Default is the executable name used for the test run on the master.
+
 * `--cloud-chdir`
     Optional relative path to be used on the remote test nodes as target folder for syncing file and run tests.
     Default is `pytest_<username>_<current_folder_name>`.

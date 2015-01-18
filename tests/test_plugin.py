@@ -1,6 +1,10 @@
 """Tests for pytest-bdd-splinter subplugin."""
+import sys
+
 import mock
 import pytest
+
+PYTHON = 'python{0}{1}'.format(*sys.version_info)
 
 
 @pytest.mark.parametrize(
@@ -12,31 +16,31 @@ import pytest
          None,
          None,
          [
-             '1*ssh=1.example.com//id=1.example.com:0//chdir=pytest_',
-             '1*ssh=1.example.com//id=1.example.com:1//chdir=pytest_',
-             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=pytest_',
+             '1*ssh=1.example.com//id=1.example.com:0//chdir=test//python={0}'.format(PYTHON),
+             '1*ssh=1.example.com//id=1.example.com:1//chdir=test//python={0}'.format(PYTHON),
+             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=test//python={0}'.format(PYTHON),
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          200,
          None,
          [
-             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=pytest_',
+             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=test//python={0}'.format(PYTHON),
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          None,
          1,
          [
-             '1*ssh=1.example.com//id=1.example.com:0//chdir=pytest_',
-             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=pytest_',
+             '1*ssh=1.example.com//id=1.example.com:0//chdir=test//python={0}'.format(PYTHON),
+             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=test//python={0}'.format(PYTHON),
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          200,
          1,
          [
-             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=pytest_',
+             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=test//python={0}'.format(PYTHON),
          ]),
     ]
 )
@@ -59,7 +63,9 @@ def test_schedule(
         (ch1, {'cpu_count': cpu_count1, 'virtual_memory': {'free': memory1 * 1024 ** 2}}),
         (ch2, {'cpu_count': cpu_count2, 'virtual_memory': {'free': memory2 * 1024 ** 2}}),
     ]
-    params = ['--cloud-node={0}'.format(node1), '--cloud-node={0}'.format(node2), '--cloud-virtualenv-path=.env']
+    params = [
+        '--cloud-node={0}'.format(node1), '--cloud-node={0}'.format(node2), '--cloud-virtualenv-path=.env',
+        '--cloud-chdir=test']
     if mem_per_process:
         params.append('--cloud-mem-per-process={0}'.format(mem_per_process))
     if max_processes:
@@ -69,7 +75,6 @@ def test_schedule(
     assert mocked_rsync.return_value.add_target.call_args[0][1] == '.env'
     assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
-    for spec, expected in zip(config.option.tx, result):
-        assert spec.startswith(expected)
+    assert config.option.tx == result
     assert config.option.dist == 'load'
     assert config.option.rsyncdir == ['.env']
