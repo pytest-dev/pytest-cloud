@@ -45,7 +45,10 @@ Command-line options
 --------------------
 
 * `--cloud-node`
-    Node host name to run tests on. Multiple allowed.
+    Node hostname (or user@hostname) to run tests on. Multiple allowed.
+
+* `--cloud-nodes`
+    Space-separated list of node hostname (or user@hostname) to run tests on. Multiple allowed.
 
 * `--cloud-python`
     Optional python executable name to be used on the remote test nodes.
@@ -74,6 +77,12 @@ Example
 .. code-block:: sh
 
     py.test tests/ --cloud-node=10.0.120.{1..40} --cloud-mem-per-process=1000 --cloud-virtualenv-path=.env/ --rsyncdir=.
+
+Or if you pass list of nodes as space-separated list:
+
+.. code-block:: sh
+
+    py.test tests/ --cloud-nodes='10.0.120.1 10.0.120.2' --cloud-mem-per-process=1000 --cloud-virtualenv-path=.env/ --rsyncdir=.
 
 
 Contact

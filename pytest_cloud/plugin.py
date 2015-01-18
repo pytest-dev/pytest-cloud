@@ -3,6 +3,7 @@
 Provides an easy way of running tests amoung several test nodes (slaves).
 """
 from __future__ import division
+import argparse
 import itertools
 import math
 import os.path
@@ -14,6 +15,8 @@ from xdist.slavemanage import (
     NodeManager,
 )
 import six
+
+import pytest
 
 
 class SplinterXdistPlugin(object):
@@ -38,6 +41,16 @@ def pytest_configure(config):
         config.pluginmanager.register(SplinterXdistPlugin())
 
 
+class NodesAction(argparse.Action):
+
+    """Parses out a space-separated list of nodes and extends dest with it."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = argparse._copy.copy(argparse._ensure_value(namespace, self.dest, []))
+        items.extend([value.strip() for value in values.split()])
+        setattr(namespace, self.dest, items)
+
+
 def pytest_addoption(parser):
     """Pytest hook to add custom command line option(s)."""
     group = parser.getgroup("cloud", "distributed tests scheduler")
@@ -48,6 +61,7 @@ def pytest_addoption(parser):
         dest='cloud_python', metavar="NAME", default='python{0}.{1}'.format(*sys.version_info))
     group._addoption(
         '--cloud-chdir',
+        metavar='DIR',
         action="store", dest="cloud_chdir",
         default=os.path.join(
             'pytest',
@@ -55,6 +69,10 @@ def pytest_addoption(parser):
             os.path.basename(os.environ['PWD'])
         ).replace(os.path.sep, '_'),
         help="relative path on remote node to run tests in. Default is pytest_<username>_<current_folder_name>")
+    group.addoption(
+        "--cloud-nodes",
+        help="space-separated test node list to use for distributed testing", type='string', action=NodesAction,
+        dest='cloud_nodes', metavar="'USER@HOST", default=[])
     group.addoption(
         "--cloud-node",
         help="test node to use for distributed testing", type='string', action="append",
@@ -199,6 +217,8 @@ def get_nodes_specs(
         if virtualenv_path:
             rsync.add_target(gw, virtualenv_path)
         node_specs.append((node, host))
+    if not node_specs:
+        pytest.exit('None of the given test nodes are connectable')
     if virtualenv_path:
         rsync.send()
     try:

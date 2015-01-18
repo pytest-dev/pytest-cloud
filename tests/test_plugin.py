@@ -64,7 +64,7 @@ def test_schedule(
         (ch2, {'cpu_count': cpu_count2, 'virtual_memory': {'free': memory2 * 1024 ** 2}}),
     ]
     params = [
-        '--cloud-node={0}'.format(node1), '--cloud-node={0}'.format(node2), '--cloud-virtualenv-path=.env',
+        '--cloud-nodes={0}'.format(node1), '--cloud-node={0}'.format(node2), '--cloud-virtualenv-path=.env',
         '--cloud-chdir=test']
     if mem_per_process:
         params.append('--cloud-mem-per-process={0}'.format(mem_per_process))
