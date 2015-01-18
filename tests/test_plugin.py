@@ -46,7 +46,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
 )
 @mock.patch('xdist.dsession.DSession')
 @mock.patch('execnet.Group')
-@mock.patch('execnet.RSync')
+@mock.patch('pytest_cloud.plugin.HostRSync')
 def test_schedule(
         mocked_rsync, mocked_group, mocked_dsession, testdir, host1, host2, user1, user2, cpu_count1,
         cpu_count2, memory1, memory2, mem_per_process, max_processes, result):

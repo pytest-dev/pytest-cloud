@@ -9,6 +9,10 @@ import os.path
 import sys
 
 import execnet
+from xdist.slavemanage import (
+    HostRSync,
+    NodeManager,
+)
 import six
 
 
@@ -148,7 +152,9 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
         for index in range(count))
 
 
-def get_nodes_specs(nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None, max_processes=None):
+def get_nodes_specs(
+        nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None, max_processes=None,
+        verbose=False):
     """Get nodes specs.
 
     Get list of node names, connect to each of them, get the system information, produce the list of node specs out of
@@ -167,6 +173,8 @@ def get_nodes_specs(nodes, python=None, chdir=None, virtualenv_path=None, mem_pe
     :type mem_per_process: int
     :param max_processes: optional maximum number of processes per test node
     :type max_processes: int
+    :param verbose: output additional information when communicating with the test node (rsync) or not
+    :type verbose: bool
 
     :return: `list` of test gateway specs for all test nodes which confirm given requirements
         in form ['1*ssh=<node>//id=<hostname>:<index>', ...]
@@ -174,7 +182,7 @@ def get_nodes_specs(nodes, python=None, chdir=None, virtualenv_path=None, mem_pe
     """
     group = execnet.Group()
     if virtualenv_path:
-        rsync = execnet.RSync(virtualenv_path)
+        rsync = HostRSync(virtualenv_path, ignores=NodeManager.DEFAULT_IGNORES, verbose=verbose)
     node_specs = []
     node_caps = {}
     for node in nodes:
@@ -227,7 +235,8 @@ def check_options(config):
             python=python,
             virtualenv_path=virtualenv_path,
             max_processes=config.option.cloud_max_processes,
-            mem_per_process=mem_per_process)
+            mem_per_process=mem_per_process,
+            verbose=config.option.verbose)
         if virtualenv_path:
             config.option.rsyncdir += [virtualenv_path]
         config.option.tx += node_specs
