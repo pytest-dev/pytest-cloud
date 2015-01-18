@@ -4,7 +4,7 @@ import sys
 import mock
 import pytest
 
-PYTHON = 'python{0}{1}'.format(*sys.version_info)
+PYTHON = 'python{0}.{1}'.format(*sys.version_info)
 
 
 @pytest.mark.parametrize(

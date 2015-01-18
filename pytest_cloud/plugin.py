@@ -41,7 +41,7 @@ def pytest_addoption(parser):
         "--cloud-python",
         help="python executable name to be used on the remote test nodes."
         "Default is the executable used on the master.", type='string', action="store",
-        dest='cloud_python', metavar="NAME", default='python{0}{1}'.format(*sys.version_info))
+        dest='cloud_python', metavar="NAME", default='python{0}.{1}'.format(*sys.version_info))
     group._addoption(
         '--cloud-chdir',
         action="store", dest="cloud_chdir",
