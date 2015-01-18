@@ -3,6 +3,7 @@
 Provides an easy way of running tests amoung several test nodes (slaves).
 """
 from __future__ import division
+import os.path
 import itertools
 import math
 
@@ -32,9 +33,18 @@ def pytest_configure(config):
         config.pluginmanager.register(SplinterXdistPlugin())
 
 
-def pytest_addoption(parser):  # pragma: no cover
+def pytest_addoption(parser):
     """Pytest hook to add custom command line option(s)."""
     group = parser.getgroup("cloud", "distributed tests scheduler")
+    group._addoption(
+        '--cloud-chdir',
+        action="store", dest="cloud_chdir",
+        default=os.path.join(
+            'pytest',
+            os.environ['USER'],
+            os.path.basename(os.environ['PWD'])
+        ).replace(os.path.sep, '_'),
+        help="relative path on remote node to run tests in. Default is pytest_<username>_<current_folder_name>")
     group.addoption(
         "--cloud-node",
         help="test node to use for distributed testing", type='string', action="append",
@@ -96,7 +106,7 @@ def get_node_capabilities(channel):
     channel.send(caps)
 
 
-def get_node_specs(node, host, caps, mem_per_process=None, max_processes=None):
+def get_node_specs(node, host, caps, chdir=None, mem_per_process=None, max_processes=None):
     """Get single node specs.
 
     Executed on the master node side.
@@ -105,6 +115,8 @@ def get_node_specs(node, host, caps, mem_per_process=None, max_processes=None):
     :type node: str
     :param host: hostname of the node
     :type host: str
+    :param chdir: relative path where to run (and sync) tests on the remote side
+    :type chdir: str
     :param mem_per_process: optional amount of memory per process needed, in megabytest
     :type mem_per_process: int
     :param max_processes: optional maximum number of processes per test node
@@ -117,15 +129,16 @@ def get_node_specs(node, host, caps, mem_per_process=None, max_processes=None):
     if mem_per_process:
         count = min(int(math.floor(caps['virtual_memory']['free'] / mem_per_process)), count)
     return (
-        '1*ssh={node}//id={host}:{index}'.format(
+        '1*ssh={node}//id={host}:{index}//chdir={chdir}'.format(
             count=count,
             node=node,
             host=host,
-            index=index)
+            index=index,
+            chdir=chdir)
         for index in range(count))
 
 
-def get_nodes_specs(nodes, virtualenv_path=None, mem_per_process=None, max_processes=None):
+def get_nodes_specs(nodes, chdir=None, virtualenv_path=None, mem_per_process=None, max_processes=None):
     """Get nodes specs.
 
     Get list of node names, connect to each of them, get the system information, produce the list of node specs out of
@@ -134,6 +147,8 @@ def get_nodes_specs(nodes, virtualenv_path=None, mem_per_process=None, max_proce
 
     :param nodes: `list` of node names in form [[<username>@]<hostname>, ...]
     :type nodes: list
+    :param chdir: relative path where to run (and sync) tests on the remote side
+    :type chdir: str
     :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
     :type virtualenv_path: str
     :param mem_per_process: optional amount of memory per process needed, in megabytest
@@ -152,9 +167,10 @@ def get_nodes_specs(nodes, virtualenv_path=None, mem_per_process=None, max_proce
     node_caps = {}
     for node in nodes:
         host = node.split('@')[1] if '@' in node else node
-        spec = 'ssh={node}//id={host}'.format(
+        spec = 'ssh={node}//id={host}//chdir={chdir}'.format(
             node=node,
-            host=host)
+            host=host,
+            chdir=chdir)
         try:
             gw = group.makegateway(spec)
         except Exception:
@@ -174,7 +190,8 @@ def get_nodes_specs(nodes, virtualenv_path=None, mem_per_process=None, max_proce
         finally:
             multi_channel.waitclose()
         return list(itertools.chain.from_iterable(
-            get_node_specs(node, hst, node_caps[hst], mem_per_process=mem_per_process, max_processes=max_processes)
+            get_node_specs(
+                node, hst, node_caps[hst], chdir=chdir, mem_per_process=mem_per_process, max_processes=max_processes)
             for node, hst in node_specs)
         )
     finally:
@@ -188,8 +205,10 @@ def check_options(config):
         if mem_per_process:
             mem_per_process = mem_per_process * 1024 * 1024
         virtualenv_path = config.option.cloud_virtualenv_path
+        chdir = config.option.cloud_chdir
         node_specs = get_nodes_specs(
             config.option.cloud_nodes,
+            chdir=chdir,
             virtualenv_path=virtualenv_path,
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process)

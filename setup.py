@@ -52,9 +52,10 @@ setup(
     include_package_data=True,
     url='https://github.com/pytest-dev/pytest-cloud',
     install_requires=[
-        'setuptools',
+        'psutil',
         'pytest',
         'pytest-xdist',
+        'setuptools',
         'six',
     ],
     classifiers=[

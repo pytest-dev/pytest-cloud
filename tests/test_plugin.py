@@ -12,31 +12,31 @@ import pytest
          None,
          None,
          [
-             '1*ssh=1.example.com//id=1.example.com:0',
-             '1*ssh=1.example.com//id=1.example.com:1',
-             '1*ssh=user@2.example.com//id=2.example.com:0',
+             '1*ssh=1.example.com//id=1.example.com:0//chdir=pytest_',
+             '1*ssh=1.example.com//id=1.example.com:1//chdir=pytest_',
+             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=pytest_',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          200,
          None,
          [
-             '1*ssh=user@2.example.com//id=2.example.com:0',
+             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=pytest_',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          None,
          1,
          [
-             '1*ssh=1.example.com//id=1.example.com:0',
-             '1*ssh=user@2.example.com//id=2.example.com:0',
+             '1*ssh=1.example.com//id=1.example.com:0//chdir=pytest_',
+             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=pytest_',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          200,
          1,
          [
-             '1*ssh=user@2.example.com//id=2.example.com:0',
+             '1*ssh=user@2.example.com//id=2.example.com:0//chdir=pytest_',
          ]),
     ]
 )
@@ -69,6 +69,7 @@ def test_schedule(
     assert mocked_rsync.return_value.add_target.call_args[0][1] == '.env'
     assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
-    assert config.option.tx == result
+    for spec, expected in zip(config.option.tx, result):
+        assert spec.startswith(expected)
     assert config.option.dist == 'load'
     assert config.option.rsyncdir == ['.env']

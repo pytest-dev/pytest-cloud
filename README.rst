@@ -47,6 +47,10 @@ Command-line options
 * `--cloud-node`
     Node host name to run tests on. Multiple allowed.
 
+* `--cloud-chdir`
+    Optional relative path to be used on the remote test nodes as target folder for syncing file and run tests.
+    Default is `pytest_<username>_<current_folder_name>`.
+
 * `--cloud-virtualenv-path`
     Optional relative path to the virtualenv to be used on the remote test nodes.
 
