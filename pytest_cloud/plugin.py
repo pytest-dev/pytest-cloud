@@ -85,11 +85,12 @@ def activate_env(channel, virtualenv_path):
     :type virtualenv_path: str
     """
     import os.path
-    import six
+    import sys
+    PY3 = sys.version_info[0] > 2
 
     if virtualenv_path:
         activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
-        if six.PY3:
+        if PY3:
             exec(compile(open(activate_script).read()))
         else:
             execfile(activate_script, {'__file__': activate_script})  # NOQA
