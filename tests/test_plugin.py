@@ -72,7 +72,7 @@ def test_schedule(
         params.append('--cloud-max-processes={0}'.format(max_processes))
     testdir.inline_run(*params)
     assert mocked_rsync.call_args[0] == ('.env',)
-    assert mocked_rsync.return_value.add_target.call_args[0][1] == '.env'
+    assert mocked_rsync.return_value.add_target_host.call_args[0][1] == '.env'
     assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
     assert config.option.tx == result
