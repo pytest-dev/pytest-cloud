@@ -215,7 +215,7 @@ def get_nodes_specs(
         except Exception:
             continue
         if virtualenv_path:
-            rsync.add_target_host(gw, virtualenv_path)
+            rsync.add_target(gw, virtualenv_path, delete=True)
         node_specs.append((node, host))
     if not node_specs:
         pytest.exit('None of the given test nodes are connectable')

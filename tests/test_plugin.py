@@ -55,6 +55,7 @@ def test_schedule(
     ch1.gateway.id = host1
     ch2 = mock.Mock()
     ch2.gateway.id = host2
+    mocked_group.mkgateway.return_value = mock.Mock()
 
     node1 = user1 + '@' + host1 if user1 else host1
     node2 = user2 + '@' + host2 if user2 else host2
@@ -72,7 +73,9 @@ def test_schedule(
         params.append('--cloud-max-processes={0}'.format(max_processes))
     testdir.inline_run(*params)
     assert mocked_rsync.call_args[0] == ('.env',)
-    assert mocked_rsync.return_value.add_target_host.call_args[0][1] == '.env'
+    assert mocked_rsync.return_value.add_target.call_args_list == [
+        mock.call(mocked_group.return_value.makegateway.return_value, '.env', delete=True),
+        mock.call(mocked_group.return_value.makegateway.return_value, '.env', delete=True)]
     assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
     assert config.option.tx == result
