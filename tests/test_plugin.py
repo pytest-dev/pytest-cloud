@@ -74,8 +74,8 @@ def test_schedule(
     testdir.inline_run(*params)
     assert mocked_rsync.call_args[0] == ('.env',)
     assert mocked_rsync.return_value.add_target.call_args_list == [
-        mock.call(mocked_group.return_value.makegateway.return_value, '.env', delete=True),
-        mock.call(mocked_group.return_value.makegateway.return_value, '.env', delete=True)]
+        mock.call(mocked_group.return_value.makegateway.return_value, '.env', finishedcallback=None, delete=True),
+        mock.call(mocked_group.return_value.makegateway.return_value, '.env', finishedcallback=None, delete=True)]
     assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
     assert config.option.tx == result

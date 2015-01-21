@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.0.9
------
+1.0.10
+------
 
 - Delete orphan files when rsyncing (bubenkoff)
 
