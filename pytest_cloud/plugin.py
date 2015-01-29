@@ -4,7 +4,12 @@ Provides an easy way of running tests amoung several test nodes (slaves).
 """
 from __future__ import division
 import argparse
-import itertools
+
+try:
+    from itertools import filterfalse
+except ImportError:
+    from itertools import ifilterfalse as filterfalse
+from itertools import chain
 import math
 import os.path
 import sys
@@ -179,6 +184,24 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
         for index in range(count))
 
 
+def unique_everseen(iterable, key=None):
+    """List unique elements, preserving order. Remember all elements ever seen."""
+    # unique_everseen('AAAABBBCCDAABBB') --> A B C D
+    # unique_everseen('ABBCcAD', str.lower) --> A B C D
+    seen = set()
+    seen_add = seen.add
+    if key is None:
+        for element in filterfalse(seen.__contains__, iterable):
+            seen_add(element)
+            yield element
+    else:
+        for element in iterable:
+            k = key(element)
+            if k not in seen:
+                seen_add(k)
+                yield element
+
+
 def get_nodes_specs(
         nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None, max_processes=None,
         config=None):
@@ -214,7 +237,7 @@ def get_nodes_specs(
         virtualenv_path = os.path.relpath(virtualenv_path)
     node_specs = []
     node_caps = {}
-    for node in nodes:
+    for node in unique_everseen(nodes):
         host = node.split('@')[1] if '@' in node else node
         spec = 'ssh={node}//id={host}//chdir={chdir}//python={python}'.format(
             node=node,
@@ -241,7 +264,7 @@ def get_nodes_specs(
                 node_caps[ch.gateway.id] = cap
         finally:
             multi_channel.waitclose()
-        return list(itertools.chain.from_iterable(
+        return list(chain.from_iterable(
             get_node_specs(
                 node, hst, node_caps[hst], python=python, chdir=chdir, mem_per_process=mem_per_process,
                 max_processes=max_processes)
