@@ -59,7 +59,9 @@ Command-line options
     Default is `pytest_<username>_<current_folder_name>`.
 
 * `--cloud-virtualenv-path`
-    Optional relative path to the virtualenv to be used on the remote test nodes.
+    Optional relative path to the virtualenv to be used on the remote test nodes. By default it will try to detect
+    whether current test process is using virtualenv and if it's located inside of the current directory. If that's
+    the case, it will use it for rsync on the remote node(s).
 
 * `--cloud-mem-per-process`
     Optional amount of memory roughly needed for test process, in megabytes.
@@ -76,13 +78,13 @@ Example
 
 .. code-block:: sh
 
-    py.test tests/ --cloud-node=10.0.120.{1..40} --cloud-mem-per-process=1000 --cloud-virtualenv-path=.env/ --rsyncdir=.
+    py.test tests/ --cloud-node=10.0.120.{1..40} --cloud-mem-per-process=1000 --rsyncdir=.
 
 Or if you pass list of nodes as space-separated list:
 
 .. code-block:: sh
 
-    py.test tests/ --cloud-nodes='10.0.120.1 10.0.120.2' --cloud-mem-per-process=1000 --cloud-virtualenv-path=.env/ --rsyncdir=.
+    py.test tests/ --cloud-nodes='10.0.120.1 10.0.120.2' --cloud-mem-per-process=1000 --rsyncdir=.
 
 
 Contact

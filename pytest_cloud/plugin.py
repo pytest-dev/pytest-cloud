@@ -9,6 +9,7 @@ import math
 import os.path
 import sys
 
+import py
 import execnet
 from xdist.slavemanage import (
     HostRSync,
@@ -32,6 +33,7 @@ class SplinterXdistPlugin(object):
         node.gateway.remote_exec(activate_env, virtualenv_path=virtualenv_path).waitclose()
 
 
+@pytest.mark.trylast
 def pytest_configure(config):
     """Register pytest-cloud's deferred plugin."""
     if (
@@ -49,6 +51,13 @@ class NodesAction(argparse.Action):
         items = argparse._copy.copy(argparse._ensure_value(namespace, self.dest, []))
         items.extend([value.strip() for value in values.split()])
         setattr(namespace, self.dest, items)
+
+
+def get_virtualenv_path():
+    """Get virtualenv path if test process is using virtual environment inside of current folder."""
+    venv_path = os.path.dirname(os.path.dirname(sys.executable))
+    if os.environ['PWD'] in venv_path:
+        return os.path.relpath(venv_path)
 
 
 def pytest_addoption(parser):
@@ -80,7 +89,7 @@ def pytest_addoption(parser):
     group.addoption(
         "--cloud-virtualenv-path",
         help="relative path to the virtualenv to be used on the remote test nodes.", type='string', action="store",
-        dest='cloud_virtualenv_path', metavar="PATH", default=None)
+        dest='cloud_virtualenv_path', metavar="PATH", default=get_virtualenv_path())
     group.addoption(
         "--cloud-mem-per-process",
         help="amount of memory roughly needed for test process, in megabytes", type='int', action="store",
@@ -153,14 +162,14 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
     :param max_processes: optional maximum number of processes per test node
     :type max_processes: int
 
-    :return: `list` of test gateway specs for single test node in form ['1*ssh=<node>//id=<hostname>:<index>', ...]
+    :return: `list` of test gateway specs for single test node in form ['1*ssh=<node>//id=<hostname>_<index>', ...]
     :rtype: list
     """
     count = min(max_processes or six.MAXSIZE, caps['cpu_count'])
     if mem_per_process:
         count = min(int(math.floor(caps['virtual_memory']['free'] / mem_per_process)), count)
     return (
-        '1*ssh={node}//id={host}:{index}//chdir={chdir}//python={python}'.format(
+        '1*ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'.format(
             count=count,
             node=node,
             host=host,
@@ -172,7 +181,7 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
 
 def get_nodes_specs(
         nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None, max_processes=None,
-        verbose=False):
+        config=None):
     """Get nodes specs.
 
     Get list of node names, connect to each of them, get the system information, produce the list of node specs out of
@@ -191,8 +200,8 @@ def get_nodes_specs(
     :type mem_per_process: int
     :param max_processes: optional maximum number of processes per test node
     :type max_processes: int
-    :param verbose: output additional information when communicating with the test node (rsync) or not
-    :type verbose: bool
+    :param config: pytest config object
+    :type config: pytest.Config
 
     :return: `list` of test gateway specs for all test nodes which confirm given requirements
         in form ['1*ssh=<node>//id=<hostname>:<index>', ...]
@@ -200,7 +209,10 @@ def get_nodes_specs(
     """
     group = execnet.Group()
     if virtualenv_path:
-        rsync = HostRSync(virtualenv_path, ignores=NodeManager.DEFAULT_IGNORES, verbose=verbose)
+        nm = NodeManager(config, specs=[])
+        rsync_virtualenv_path = py.path.local(virtualenv_path).realpath()
+        rsync = HostRSync(rsync_virtualenv_path, **nm.rsyncoptions)
+        virtualenv_path = os.path.relpath(virtualenv_path)
     node_specs = []
     node_caps = {}
     for node in nodes:
@@ -215,7 +227,7 @@ def get_nodes_specs(
         except Exception:
             continue
         if virtualenv_path:
-            rsync.add_target(gw, virtualenv_path, finishedcallback=None, delete=True)
+            rsync.add_target_host(gw)
         node_specs.append((node, host))
     if not node_specs:
         pytest.exit('None of the given test nodes are connectable')
@@ -256,8 +268,12 @@ def check_options(config):
             virtualenv_path=virtualenv_path,
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process,
-            verbose=config.option.verbose)
+            config=config)
         if virtualenv_path:
-            config.option.rsyncdir += [virtualenv_path]
+            ini_rsync_dirs = config.getini("rsyncdirs")
+            if virtualenv_path in config.option.rsyncdir:
+                config.option.rsyncdir.remove(virtualenv_path)
+            if virtualenv_path in ini_rsync_dirs:
+                ini_rsync_dirs.remove(virtualenv_path)
         config.option.tx += node_specs
         config.option.dist = 'load'

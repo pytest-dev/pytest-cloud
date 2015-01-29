@@ -1,6 +1,14 @@
 Changelog
 =========
 
+
+1.0.11
+------
+
+- Automatic discovery of the virtualenv (bubenkoff)
+- Fixes to rsyncing (bubenkoff)
+- Safer node id generation (bubenkoff)
+
 1.0.10
 ------
 
