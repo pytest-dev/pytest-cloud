@@ -211,7 +211,6 @@ def get_nodes_specs(
     if virtualenv_path:
         nm = NodeManager(config, specs=[])
         rsync_virtualenv_path = py.path.local(virtualenv_path).realpath()
-        rsync = HostRSync(rsync_virtualenv_path, **nm.rsyncoptions)
         virtualenv_path = os.path.relpath(virtualenv_path)
     node_specs = []
     node_caps = {}
@@ -227,12 +226,12 @@ def get_nodes_specs(
         except Exception:
             continue
         if virtualenv_path:
+            rsync = HostRSync(rsync_virtualenv_path, **nm.rsyncoptions)
             rsync.add_target_host(gw)
+            rsync.send()
         node_specs.append((node, host))
     if not node_specs:
         pytest.exit('None of the given test nodes are connectable')
-    if virtualenv_path:
-        rsync.send()
     try:
         group.remote_exec(activate_env, virtualenv_path=virtualenv_path).waitclose()
         multi_channel = group.remote_exec(get_node_capabilities)

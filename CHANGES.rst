@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0.11
+1.0.12
 ------
 
 - Automatic discovery of the virtualenv (bubenkoff)
