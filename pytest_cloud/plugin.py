@@ -42,9 +42,9 @@ class SplinterXdistPlugin(object):
 def pytest_configure(config):
     """Register pytest-cloud's deferred plugin."""
     if (
-        getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local'
-            and config.option.cloud_nodes
-            and config.pluginmanager.getplugin('xdist')):
+        getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local' and
+            config.option.cloud_nodes and
+            config.pluginmanager.getplugin('xdist')):
         config.pluginmanager.register(SplinterXdistPlugin())
 
 
