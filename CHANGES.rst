@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.14
+1.0.15
 ------
 
 - Add pyc files cleanup (bubenkoff)

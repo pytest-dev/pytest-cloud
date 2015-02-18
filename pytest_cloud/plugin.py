@@ -125,6 +125,7 @@ def activate_env(channel, virtualenv_path):
     import subprocess
     PY3 = sys.version_info[0] > 2
     subprocess.check_call(['find', '.', '-name', '"*.pyc"', '-delete'])
+    subprocess.check_call(['find', '.', '-name', '"__pycache__"', '-delete'])
     if virtualenv_path:
         activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
         if PY3:
