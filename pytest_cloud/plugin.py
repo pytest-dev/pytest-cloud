@@ -267,11 +267,11 @@ def get_nodes_specs(
                 node_caps[ch.gateway.id] = cap
         finally:
             multi_channel.waitclose()
-        return list(chain.from_iterable(
+        return list(chain.from_iterable([
             get_node_specs(
                 node, hst, node_caps[hst], python=python, chdir=chdir, mem_per_process=mem_per_process,
                 max_processes=max_processes)
-            for node, hst in node_specs)
+            for node, hst in node_specs])
         )
     finally:
         group.terminate()
@@ -294,6 +294,8 @@ def check_options(config):
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process,
             config=config)
+        if not node_specs:
+            pytest.exit('None of the given test nodes are able to serve as a test node due to capabilities')
         if virtualenv_path:
             ini_rsync_dirs = config.getini("rsyncdirs")
             if virtualenv_path in config.option.rsyncdir:
