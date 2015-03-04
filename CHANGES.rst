@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0.16
+------
+
+- Ensure plugin command line hook is executed first (bubenkoff)
+
 1.0.15
 ------
 

@@ -105,6 +105,7 @@ def pytest_addoption(parser):
         dest='cloud_max_processes', metavar="NUMBER", default=None)
 
 
+@pytest.mark.tryfirst
 def pytest_cmdline_main(config):
     """Custom cmd line manipulation for pytest-cloud."""
     check_options(config)
