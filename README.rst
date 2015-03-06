@@ -1,5 +1,5 @@
-Cloud plugin for the py.test runner
-======================================
+Distributed tests planner plugin for pytest testing framework
+=============================================================
 
 .. image:: https://api.travis-ci.org/pytest-dev/pytest-cloud.png
     :target: https://travis-ci.org/pytest-dev/pytest-cloud
@@ -13,7 +13,7 @@ Cloud plugin for the py.test runner
 
 
 Install pytest-cloud
------------------------
+--------------------
 
 ::
 
