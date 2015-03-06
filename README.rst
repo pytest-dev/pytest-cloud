@@ -1,4 +1,4 @@
-Splinter plugin for the py.test runner
+Cloud plugin for the py.test runner
 ======================================
 
 .. image:: https://api.travis-ci.org/pytest-dev/pytest-cloud.png
