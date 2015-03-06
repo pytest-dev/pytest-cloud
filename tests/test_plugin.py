@@ -62,8 +62,8 @@ def test_schedule(
     node2 = user2 + '@' + host2 if user2 else host2
 
     mocked_group.return_value.remote_exec.return_value.receive_each.return_value = [
-        (ch1, {'cpu_count': cpu_count1, 'virtual_memory': {'free': memory1 * 1024 ** 2}}),
-        (ch2, {'cpu_count': cpu_count2, 'virtual_memory': {'free': memory2 * 1024 ** 2}}),
+        (ch1, {'cpu_count': cpu_count1, 'virtual_memory': {'available': memory1 * 1024 ** 2}}),
+        (ch2, {'cpu_count': cpu_count2, 'virtual_memory': {'available': memory2 * 1024 ** 2}}),
     ]
     params = [
         '--cloud-nodes={0}'.format(node1), '--cloud-node={0}'.format(node2),

@@ -1,10 +1,11 @@
 Changelog
 =========
 
-1.0.17
+1.0.18
 ------
 
 - Ensure plugin command line hook is executed first (bubenkoff)
+- Correct free memory calculation (bubenkoff)
 
 1.0.15
 ------

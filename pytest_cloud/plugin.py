@@ -143,12 +143,12 @@ def get_node_capabilities(channel):
     :param channel: execnet channel for communication with master node
     :type channel: execnet.gateway_base.Channel
 
-    :return: `dict` in form {'cpu_count': 1, 'virtual_memory': {'free': 100, 'total': 200}}
+    :return: `dict` in form {'cpu_count': 1, 'virtual_memory': {'available': 100, 'total': 200}}
     :rtype: dict
     """
     import psutil
     memory = psutil.virtual_memory()
-    caps = dict(cpu_count=psutil.cpu_count(), virtual_memory=dict(free=memory.free, total=memory.total))
+    caps = dict(cpu_count=psutil.cpu_count(), virtual_memory=dict(available=memory.available, total=memory.total))
     channel.send(caps)
 
 
@@ -175,7 +175,7 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
     """
     count = min(max_processes or six.MAXSIZE, caps['cpu_count'])
     if mem_per_process:
-        count = min(int(math.floor(caps['virtual_memory']['free'] / mem_per_process)), count)
+        count = min(int(math.floor(caps['virtual_memory']['available'] / mem_per_process)), count)
     return (
         '1*ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'.format(
             count=count,
