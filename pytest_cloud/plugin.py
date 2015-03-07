@@ -242,7 +242,6 @@ def get_nodes_specs(
     group = execnet.Group()
     if virtualenv_path:
         nm = NodeManager(config, specs=[])
-        rsync_virtualenv_path = py.path.local(virtualenv_path).realpath()
         virtualenv_path = os.path.relpath(virtualenv_path)
         python = os.path.join(chdir, virtualenv_path, 'bin', 'python')
     node_specs = []
@@ -258,7 +257,8 @@ def get_nodes_specs(
             gw = group.makegateway(spec)
         except Exception:
             continue
-        if virtualenv_path:
+        if virtualenv_path and rsync_virtualenv_path:
+            rsync_virtualenv_path = py.path.local(virtualenv_path).realpath()
             rsync = HostRSync(rsync_virtualenv_path, **nm.rsyncoptions)
             rsync.add_target_host(gw)
             rsync.send()

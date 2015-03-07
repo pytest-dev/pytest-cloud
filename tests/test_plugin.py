@@ -10,12 +10,13 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
 
 @pytest.mark.parametrize(
     ['host1', 'user1', 'cpu_count1', 'memory1', 'host2', 'user2', 'cpu_count2', 'memory2',
-     'mem_per_process', 'max_processes', 'result'],
+     'mem_per_process', 'max_processes', 'skip_rsync', 'result'],
     [
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          None,
          None,
+         False,
          [
              '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
              '1*ssh=1.example.com//id=1.example.com_1//chdir=test//python=',
@@ -25,6 +26,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          '2.example.com', 'user', 1, 200,
          200,
          None,
+         False,
          [
              '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
@@ -32,6 +34,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          '2.example.com', 'user', 1, 200,
          None,
          1,
+         False,
          [
              '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
              '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
@@ -40,6 +43,15 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          '2.example.com', 'user', 1, 200,
          200,
          1,
+         False,
+         [
+             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
+         ]),
+        ('1.example.com', '', 2, 100,
+         '2.example.com', 'user', 1, 200,
+         200,
+         1,
+         True,
          [
              '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
@@ -50,7 +62,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
 @mock.patch('pytest_cloud.plugin.HostRSync')
 def test_schedule(
         mocked_rsync, mocked_group, mocked_dsession, testdir, host1, host2, user1, user2, cpu_count1,
-        cpu_count2, memory1, memory2, mem_per_process, max_processes, result):
+        cpu_count2, memory1, memory2, mem_per_process, max_processes, skip_rsync, result):
     """Test scheduling of tests on given nodes."""
     ch1 = mock.Mock()
     ch1.gateway.id = host1
@@ -77,7 +89,8 @@ def test_schedule(
     assert mocked_rsync.return_value.add_target_host.call_args_list == [
         mock.call(mocked_group.return_value.makegateway.return_value,),
         mock.call(mocked_group.return_value.makegateway.return_value,)]
-    assert mocked_rsync.return_value.send.called
+    if not skip_rsync:
+        assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
     assert all(tx.startswith(expected) for tx, expected in zip(config.option.tx, result))
     assert config.option.dist == 'load'
