@@ -17,31 +17,31 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          None,
          None,
          [
-             '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python={0}'.format(PYTHON),
-             '1*ssh=1.example.com//id=1.example.com_1//chdir=test//python={0}'.format(PYTHON),
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python={0}'.format(PYTHON),
+             '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
+             '1*ssh=1.example.com//id=1.example.com_1//chdir=test//python=',
+             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          200,
          None,
          [
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python={0}'.format(PYTHON),
+             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          None,
          1,
          [
-             '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python={0}'.format(PYTHON),
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python={0}'.format(PYTHON),
+             '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
+             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
          200,
          1,
          [
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python={0}'.format(PYTHON),
+             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
     ]
 )
@@ -79,5 +79,5 @@ def test_schedule(
         mock.call(mocked_group.return_value.makegateway.return_value,)]
     assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
-    assert config.option.tx == result
+    assert all(tx.startswith(expected) for tx, expected in zip(config.option.tx, result))
     assert config.option.dist == 'load'
