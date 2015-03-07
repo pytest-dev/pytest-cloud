@@ -96,6 +96,10 @@ def pytest_addoption(parser):
         help="relative path to the virtualenv to be used on the remote test nodes.", type='string', action="store",
         dest='cloud_virtualenv_path', metavar="PATH", default=get_virtualenv_path())
     group.addoption(
+        "--cloud-rsync-virtualenv",
+        help="Perform rsync of the virtualenv folder.", action="store_true",
+        dest='cloud_rsync_virtualenv', default=True)
+    group.addoption(
         "--cloud-mem-per-process",
         help="amount of memory roughly needed for test process, in megabytes", type='int', action="store",
         dest='cloud_mem_per_process', metavar="NUMBER", default=None)
@@ -206,8 +210,8 @@ def unique_everseen(iterable, key=None):
 
 
 def get_nodes_specs(
-        nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None, max_processes=None,
-        config=None):
+        nodes, python=None, chdir=None, virtualenv_path=None, rsync_virtualenv_path=None, mem_per_process=None,
+        max_processes=None, config=None):
     """Get nodes specs.
 
     Get list of node names, connect to each of them, get the system information, produce the list of node specs out of
@@ -222,6 +226,8 @@ def get_nodes_specs(
     :type chdir: str
     :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
     :type virtualenv_path: str
+    :param rsync_virtualenv_path: perform rsync of the virtualenv or not
+    :type rsync_virtualenv_path: bool
     :param mem_per_process: optional amount of memory per process needed, in megabytest
     :type mem_per_process: int
     :param max_processes: optional maximum number of processes per test node
@@ -285,6 +291,7 @@ def check_options(config):
         if mem_per_process:
             mem_per_process = mem_per_process * 1024 * 1024
         virtualenv_path = config.option.cloud_virtualenv_path
+        rsync_virtualenv_path = config.option.cloud_rsync_virtualenv
         chdir = config.option.cloud_chdir
         python = config.option.cloud_python
         node_specs = get_nodes_specs(
@@ -292,6 +299,7 @@ def check_options(config):
             chdir=chdir,
             python=python,
             virtualenv_path=virtualenv_path,
+            rsync_virtualenv_path=rsync_virtualenv_path,
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process,
             config=config)
