@@ -238,6 +238,7 @@ def get_nodes_specs(
         nm = NodeManager(config, specs=[])
         rsync_virtualenv_path = py.path.local(virtualenv_path).realpath()
         virtualenv_path = os.path.relpath(virtualenv_path)
+        python = os.path.join(chdir, virtualenv_path, 'bin', 'python')
     node_specs = []
     node_caps = {}
     for node in unique_everseen(nodes):
