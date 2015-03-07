@@ -96,9 +96,9 @@ def pytest_addoption(parser):
         help="relative path to the virtualenv to be used on the remote test nodes.", type='string', action="store",
         dest='cloud_virtualenv_path', metavar="PATH", default=get_virtualenv_path())
     group.addoption(
-        "--cloud-rsync-virtualenv",
-        help="Perform rsync of the virtualenv folder.", action="store_true",
-        dest='cloud_rsync_virtualenv', default=True)
+        "--cloud-skip-virtualenv-rsync",
+        help="Skip an rsync of the virtualenv folder.", action="store_true",
+        dest='cloud_skip_virtualenv_rsync', default=False)
     group.addoption(
         "--cloud-mem-per-process",
         help="amount of memory roughly needed for test process, in megabytes", type='int', action="store",
@@ -291,7 +291,7 @@ def check_options(config):
         if mem_per_process:
             mem_per_process = mem_per_process * 1024 * 1024
         virtualenv_path = config.option.cloud_virtualenv_path
-        rsync_virtualenv_path = config.option.cloud_rsync_virtualenv
+        rsync_virtualenv_path = not config.option.cloud_skip_virtualenv_rsync
         chdir = config.option.cloud_chdir
         python = config.option.cloud_python
         node_specs = get_nodes_specs(
