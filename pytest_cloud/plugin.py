@@ -60,8 +60,8 @@ class NodesAction(argparse.Action):
 
 def get_virtualenv_path():
     """Get virtualenv path if test process is using virtual environment inside of current folder."""
-    venv_path = os.path.dirname(os.path.dirname(sys.executable))
-    if os.environ['PWD'] in venv_path:
+    venv_path = os.path.realpath(os.path.dirname(os.path.dirname(sys.executable)))
+    if os.path.realpath(os.environ['PWD']) in venv_path:
         return os.path.relpath(venv_path)
 
 
@@ -243,7 +243,8 @@ def get_nodes_specs(
     if virtualenv_path:
         nm = NodeManager(config, specs=[])
         virtualenv_path = os.path.relpath(virtualenv_path)
-        python = os.path.join(chdir, virtualenv_path, 'bin', os.path.basename(sys.executable))
+        if not do_rsync_virtualenv_path:
+            python = os.path.join(chdir, virtualenv_path, 'bin', os.path.basename(sys.executable))
     node_specs = []
     node_caps = {}
     for node in unique_everseen(nodes):
