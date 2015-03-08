@@ -243,7 +243,7 @@ def get_nodes_specs(
     if virtualenv_path:
         nm = NodeManager(config, specs=[])
         virtualenv_path = os.path.relpath(virtualenv_path)
-        python = os.path.join(chdir, virtualenv_path, 'bin', 'python')
+        python = os.path.join(chdir, virtualenv_path, 'bin', os.path.basename(sys.executable))
     node_specs = []
     node_caps = {}
     for node in unique_everseen(nodes):

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.23
+1.0.24
 ------
 
 - Correct virtualenv execution (bubenkoff)

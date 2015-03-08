@@ -80,16 +80,18 @@ def test_schedule(
     params = [
         '--cloud-nodes={0}'.format(node1), '--cloud-node={0}'.format(node2),
         '--cloud-chdir=test']
+    if skip_rsync:
+        params.append('--cloud-skip-virtualenv-rsync')
     if mem_per_process:
         params.append('--cloud-mem-per-process={0}'.format(mem_per_process))
     if max_processes:
         params.append('--cloud-max-processes={0}'.format(max_processes))
     testdir.inline_run(*params)
-    assert mocked_rsync.call_args[0] == (os.path.dirname(os.path.dirname(sys.executable)),)
-    assert mocked_rsync.return_value.add_target_host.call_args_list == [
-        mock.call(mocked_group.return_value.makegateway.return_value,),
-        mock.call(mocked_group.return_value.makegateway.return_value,)]
     if not skip_rsync:
+        assert mocked_rsync.call_args[0] == (os.path.dirname(os.path.dirname(sys.executable)),)
+        assert mocked_rsync.return_value.add_target_host.call_args_list == [
+            mock.call(mocked_group.return_value.makegateway.return_value,),
+            mock.call(mocked_group.return_value.makegateway.return_value,)]
         assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
     assert all(tx.startswith(expected) for tx, expected in zip(config.option.tx, result))
