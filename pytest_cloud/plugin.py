@@ -210,7 +210,7 @@ def unique_everseen(iterable, key=None):
 
 
 def get_nodes_specs(
-        nodes, python=None, chdir=None, virtualenv_path=None, rsync_virtualenv_path=None, mem_per_process=None,
+        nodes, python=None, chdir=None, virtualenv_path=None, do_rsync_virtualenv_path=None, mem_per_process=None,
         max_processes=None, config=None):
     """Get nodes specs.
 
@@ -226,8 +226,8 @@ def get_nodes_specs(
     :type chdir: str
     :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
     :type virtualenv_path: str
-    :param rsync_virtualenv_path: perform rsync of the virtualenv or not
-    :type rsync_virtualenv_path: bool
+    :param do_rsync_virtualenv_path: perform rsync of the virtualenv or not
+    :type do_rsync_virtualenv_path: bool
     :param mem_per_process: optional amount of memory per process needed, in megabytest
     :type mem_per_process: int
     :param max_processes: optional maximum number of processes per test node
@@ -257,7 +257,7 @@ def get_nodes_specs(
             gw = group.makegateway(spec)
         except Exception:
             continue
-        if virtualenv_path and rsync_virtualenv_path:
+        if virtualenv_path and do_rsync_virtualenv_path:
             rsync_virtualenv_path = py.path.local(virtualenv_path).realpath()
             rsync = HostRSync(rsync_virtualenv_path, **nm.rsyncoptions)
             rsync.add_target_host(gw)
@@ -291,7 +291,7 @@ def check_options(config):
         if mem_per_process:
             mem_per_process = mem_per_process * 1024 * 1024
         virtualenv_path = config.option.cloud_virtualenv_path
-        rsync_virtualenv_path = not config.option.cloud_skip_virtualenv_rsync
+        do_rsync_virtualenv_path = not config.option.cloud_skip_virtualenv_rsync
         chdir = config.option.cloud_chdir
         python = config.option.cloud_python
         node_specs = get_nodes_specs(
@@ -299,7 +299,7 @@ def check_options(config):
             chdir=chdir,
             python=python,
             virtualenv_path=virtualenv_path,
-            rsync_virtualenv_path=rsync_virtualenv_path,
+            do_rsync_virtualenv_path=do_rsync_virtualenv_path,
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process,
             config=config)
