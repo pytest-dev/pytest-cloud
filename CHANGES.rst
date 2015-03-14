@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.26
+------
+
+- Don't remove `__pycache__` folders (bubenkoff)
+
+
 1.0.25
 ------
 
