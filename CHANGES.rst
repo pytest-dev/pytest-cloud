@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.0
+-----
+
+- Avoid unnecessary multiple ssh connections to the same node (bubenkoff)
+
 1.0.25
 ------
 

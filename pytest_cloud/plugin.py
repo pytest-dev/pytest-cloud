@@ -180,15 +180,17 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
     count = min(max_processes or six.MAXSIZE, caps['cpu_count'])
     if mem_per_process:
         count = min(int(math.floor(caps['virtual_memory']['available'] / mem_per_process)), count)
-    return (
-        '1*ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'.format(
+    for index in range(count):
+        fmt = (
+            '1*ssh={node}//id={host}_{index}//chdir={chdir}//python={python}' if index == 0 else
+            '1*popen//id={host}_{index}//via={host}_0//python={python}')
+        yield fmt.format(
             count=count,
             node=node,
             host=host,
             index=index,
             chdir=chdir,
             python=python)
-        for index in range(count))
 
 
 def unique_everseen(iterable, key=None):
@@ -275,11 +277,11 @@ def get_nodes_specs(
                 node_caps[ch.gateway.id] = cap
         finally:
             multi_channel.waitclose()
-        return list(chain.from_iterable([
+        return list(chain.from_iterable(
             get_node_specs(
                 node, hst, node_caps[hst], python=python, chdir=chdir, mem_per_process=mem_per_process,
                 max_processes=max_processes)
-            for node, hst in node_specs])
+            for node, hst in node_specs)
         )
     finally:
         group.terminate()
