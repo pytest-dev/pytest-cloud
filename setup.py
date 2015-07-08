@@ -29,6 +29,7 @@ setup(
         'psutil',
         'pytest',
         'pytest-xdist',
+        'pytest-cache',
         'setuptools',
         'six',
         'timeout-decorator>=0.3.2',
