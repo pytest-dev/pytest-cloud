@@ -31,6 +31,7 @@ setup(
         'pytest-xdist',
         'setuptools',
         'six',
+        'timeout-decorator>=0.3.2',
     ],
     classifiers=[
         'Development Status :: 6 - Mature',

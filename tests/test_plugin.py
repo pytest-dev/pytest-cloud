@@ -19,7 +19,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          False,
          [
              '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
-             '1*popen//id=1.example.com_1//via=1.example.com_0//python=',
+             '1*ssh=1.example.com//id=1.example.com_1//chdir=test//python=',
              '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
@@ -59,10 +59,10 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
 )
 @mock.patch('xdist.dsession.DSession')
 @mock.patch('execnet.Group')
-@mock.patch('pytest_cloud.plugin.HostRSync')
+@mock.patch('pytest_cloud.plugin.RSync')
 def test_schedule(
         mocked_rsync, mocked_group, mocked_dsession, testdir, host1, host2, user1, user2, cpu_count1,
-        cpu_count2, memory1, memory2, mem_per_process, max_processes, skip_rsync, result):
+        cpu_count2, memory1, memory2, mem_per_process, max_processes, skip_rsync, result, request):
     """Test scheduling of tests on given nodes."""
     ch1 = mock.Mock()
     ch1.gateway.id = host1
@@ -88,10 +88,10 @@ def test_schedule(
         params.append('--cloud-max-processes={0}'.format(max_processes))
     testdir.inline_run(*params)
     if not skip_rsync:
-        assert mocked_rsync.call_args[0] == (os.path.dirname(os.path.dirname(sys.executable)),)
+        assert mocked_rsync.call_args[0] == (testdir.tmpdir, 'test')
         assert mocked_rsync.return_value.add_target_host.call_args_list == [
-            mock.call(mocked_group.return_value.makegateway.return_value,),
-            mock.call(mocked_group.return_value.makegateway.return_value,)]
+            mock.call(node1,),
+            mock.call(node2,)]
         assert mocked_rsync.return_value.send.called
     config = mocked_dsession.call_args[0][0]
     assert all(tx.startswith(expected) for tx, expected in zip(config.option.tx, result))

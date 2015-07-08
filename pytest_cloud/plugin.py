@@ -4,6 +4,7 @@ Provides an easy way of running tests amoung several test nodes (slaves).
 """
 from __future__ import division
 import argparse
+import timeout_decorator
 
 try:
     from itertools import filterfalse
@@ -17,12 +18,15 @@ import sys
 import py
 import execnet
 from xdist.slavemanage import (
-    HostRSync,
     NodeManager,
 )
+from pytest_cache import getrootdir
 import six
 
 import pytest
+
+from .rsync import RSync
+from . import patches
 
 
 class SplinterXdistPlugin(object):
@@ -129,8 +133,8 @@ def activate_env(channel, virtualenv_path):
     import sys
     import subprocess
     PY3 = sys.version_info[0] > 2
-    subprocess.check_call(['find', '.', '-name', '"*.pyc"', '-delete'])
-    subprocess.check_call(['find', '.', '-name', '"__pycache__"', '-delete'])
+    subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
+    subprocess.check_call(['find', '.', '-name', '__pycache__', '-delete'])
     if virtualenv_path:
         activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
         if PY3:
@@ -181,9 +185,7 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
     if mem_per_process:
         count = min(int(math.floor(caps['virtual_memory']['available'] / mem_per_process)), count)
     for index in range(count):
-        fmt = (
-            '1*ssh={node}//id={host}_{index}//chdir={chdir}//python={python}' if index == 0 else
-            '1*popen//id={host}_{index}//via={host}_0//python={python}')
+        fmt = '1*ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'
         yield fmt.format(
             count=count,
             node=node,
@@ -211,8 +213,14 @@ def unique_everseen(iterable, key=None):
                 yield element
 
 
+@timeout_decorator.timeout(3)
+def make_gateway(group, spec):
+    """Make a gateway."""
+    group.makegateway(spec)
+
+
 def get_nodes_specs(
-        nodes, python=None, chdir=None, virtualenv_path=None, do_rsync_virtualenv_path=None, mem_per_process=None,
+        nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None,
         max_processes=None, config=None):
     """Get nodes specs.
 
@@ -228,8 +236,6 @@ def get_nodes_specs(
     :type chdir: str
     :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
     :type virtualenv_path: str
-    :param do_rsync_virtualenv_path: perform rsync of the virtualenv or not
-    :type do_rsync_virtualenv_path: bool
     :param mem_per_process: optional amount of memory per process needed, in megabytest
     :type mem_per_process: int
     :param max_processes: optional maximum number of processes per test node
@@ -245,10 +251,9 @@ def get_nodes_specs(
     if virtualenv_path:
         nm = NodeManager(config, specs=[])
         virtualenv_path = os.path.relpath(virtualenv_path)
-        if not do_rsync_virtualenv_path:
-            python = os.path.join(chdir, virtualenv_path, 'bin', os.path.basename(sys.executable))
     node_specs = []
     node_caps = {}
+    rsync = RSync(getrootdir(config, ''), chdir, includes=config.getini("rsyncdirs"), **nm.rsyncoptions)
     for node in unique_everseen(nodes):
         host = node.split('@')[1] if '@' in node else node
         spec = 'ssh={node}//id={host}//chdir={chdir}//python={python}'.format(
@@ -257,17 +262,14 @@ def get_nodes_specs(
             chdir=chdir,
             python=python)
         try:
-            gw = group.makegateway(spec)
+            make_gateway(group, spec)
         except Exception:
             continue
-        if virtualenv_path and do_rsync_virtualenv_path:
-            rsync_virtualenv_path = py.path.local(virtualenv_path).realpath()
-            rsync = HostRSync(rsync_virtualenv_path, **nm.rsyncoptions)
-            rsync.add_target_host(gw)
-            rsync.send()
+        rsync.add_target_host(node)
         node_specs.append((node, host))
     if not node_specs:
         pytest.exit('None of the given test nodes are connectable')
+    rsync.send()
     try:
         group.remote_exec(activate_env, virtualenv_path=virtualenv_path).waitclose()
         multi_channel = group.remote_exec(get_node_capabilities)
@@ -284,17 +286,20 @@ def get_nodes_specs(
             for node, hst in node_specs)
         )
     finally:
-        group.terminate()
+        try:
+            group.terminate()
+        except Exception:
+            pass
 
 
 def check_options(config):
     """Process options to manipulate (produce other options) important for pytest-cloud."""
     if getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local' and config.option.cloud_nodes:
+        patches.apply()
         mem_per_process = config.option.cloud_mem_per_process
         if mem_per_process:
             mem_per_process = mem_per_process * 1024 * 1024
         virtualenv_path = config.option.cloud_virtualenv_path
-        do_rsync_virtualenv_path = not config.option.cloud_skip_virtualenv_rsync
         chdir = config.option.cloud_chdir
         python = config.option.cloud_python
         node_specs = get_nodes_specs(
@@ -302,17 +307,10 @@ def check_options(config):
             chdir=chdir,
             python=python,
             virtualenv_path=virtualenv_path,
-            do_rsync_virtualenv_path=do_rsync_virtualenv_path,
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process,
             config=config)
         if not node_specs:
             pytest.exit('None of the given test nodes are able to serve as a test node due to capabilities')
-        if virtualenv_path:
-            ini_rsync_dirs = config.getini("rsyncdirs")
-            if virtualenv_path in config.option.rsyncdir:
-                config.option.rsyncdir.remove(virtualenv_path)
-            if virtualenv_path in ini_rsync_dirs:
-                ini_rsync_dirs.remove(virtualenv_path)
         config.option.tx += node_specs
         config.option.dist = 'load'

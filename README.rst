@@ -63,10 +63,6 @@ Command-line options
     whether current test process is using virtualenv and if it's located inside of the current directory. If that's
     the case, it will use it for rsync on the remote node(s).
 
-* `--cloud-skip-virtualenv-rsync`
-    Optional flag to skip automatic rsync of the virtualenv folder (if found or passed). Might be useful if a custom
-    file syncronization mechanism (like native ``rsync``) is used.
-
 * `--cloud-mem-per-process`
     Optional amount of memory roughly needed for test process, in megabytes.
     Will be used to calculate amount of test processes per node, getting the free memory, dividing it for the memory
