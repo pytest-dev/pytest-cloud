@@ -63,15 +63,14 @@ class RSync(object):
             fd_includes.writelines(include + '\n' for include in self.get_includes())
             fd_includes.flush()
             subprocess.call([
-                parallel, '--verbose', '--gnu', '-j {jobs}',
+                parallel, '--verbose', '--gnu', '-j', str(len(self.targets)),
                 'rsync -arHAXvx --ignore-errors --include-from={includes} --exclude-from={ignores} '
                 '--numeric-ids --force '
-                '--delete-excluded --delete -e \"ssh -T -c arcfour -o Compression=no -o -x\" '
+                '--delete-excluded --delete -e \"ssh -T -c arcfour -o Compression=no -x\" '
                 '. {{}}:{chdir}'.format(
                     chdir=self.targetdir,
                     ignores=ignores_path,
                     includes=includes_path,
-                    jobs=len(self.targets),
                 ), ':::'
             ] + list(self.targets))
         finally:
