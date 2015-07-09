@@ -1,7 +1,6 @@
 """Faster rsync."""
 import os
 import tempfile
-import fnmatch
 import subprocess
 
 from distutils.spawn import find_executable
@@ -64,7 +63,7 @@ class RSync(object):
             fd_includes.flush()
             subprocess.call([
                 parallel, '--verbose', '--gnu', '-j', str(len(self.targets)),
-                'rsync -arHAXvx --ignore-errors --include-from={includes} --exclude-from={ignores} '
+                'rsync -arHAXx --bwlimit=5000 --ignore-errors --include-from={includes} --exclude-from={ignores} '
                 '--numeric-ids --force '
                 '--delete-excluded --delete -e \"ssh -T -c arcfour -o Compression=no -x\" '
                 '. {{}}:{chdir}'.format(
