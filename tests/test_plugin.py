@@ -18,7 +18,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          False,
          [
              'ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
-             'popen//id=1.example.com_1//python=',
+             'popen//id=1.example.com_1//via=1.example.com_0//python=',
              'ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
