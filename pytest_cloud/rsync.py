@@ -28,13 +28,14 @@ class RSync(object):
 
     """Send a directory structure (recursively) to one or multiple remote filesystems."""
 
-    def __init__(self, sourcedir, targetdir, verbose=True, ignores=None, includes=None, **kwargs):
+    def __init__(self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=10, **kwargs):
         self.sourcedir = str(sourcedir)
         self.targetdir = str(targetdir)
         self.verbose = verbose
         self.ignores = ignores or []
         self.includes = set(includes or [])
         self.targets = set()
+        self.jobs = jobs
 
     def get_ignores(self):
         """Get ignores."""
@@ -61,17 +62,28 @@ class RSync(object):
             fd_ignores.flush()
             fd_includes.writelines(include + '\n' for include in self.get_includes())
             fd_includes.flush()
-            subprocess.call([
-                parallel, '--verbose', '--gnu', '-j', str(len(self.targets)),
-                'rsync -arHAXx --bwlimit=5000 --ignore-errors --include-from={includes} --exclude-from={ignores} '
-                '--numeric-ids --force '
-                '--delete-excluded --delete -e \"ssh -T -c arcfour -o Compression=no -x\" '
-                '. {{}}:{chdir}'.format(
-                    chdir=self.targetdir,
-                    ignores=ignores_path,
-                    includes=includes_path,
-                ), ':::'
-            ] + list(self.targets))
+            subprocess.call(
+                [parallel] + (['--verbose'] if self.verbose else []) + [
+                    '--gnu',
+                    '--jobs={0}'.format(min(len(self.targets), self.jobs)),
+                    'rsync -arHAXx{verbose} '
+                    '--bwlimit=5000 '
+                    '--ignore-errors '
+                    '--include-from={includes} '
+                    '--exclude-from={ignores} '
+                    '--numeric-ids '
+                    '--force '
+                    '--delete-excluded '
+                    '--delete '
+                    '-e \"ssh -T -c arcfour -o Compression=no -x\" '
+                    '. {{}}:{chdir}'.format(
+                        verbose='v' if self.verbose else '',
+                        jobs=self.jobs,
+                        chdir=self.targetdir,
+                        ignores=ignores_path,
+                        includes=includes_path,
+                    ), ':::'
+                ] + list(self.targets))
         finally:
             fd_ignores.close()
             fd_includes.close()

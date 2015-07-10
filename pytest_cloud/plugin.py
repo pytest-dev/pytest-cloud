@@ -15,7 +15,6 @@ import math
 import os.path
 import sys
 
-import py
 import execnet
 from xdist.slavemanage import (
     NodeManager,
@@ -185,7 +184,10 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
     if mem_per_process:
         count = min(int(math.floor(caps['virtual_memory']['available'] / mem_per_process)), count)
     for index in range(count):
-        fmt = '1*ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'
+        if index == 0:
+            fmt = 'ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'
+        else:
+            fmt = 'popen//id={host}_{index}//chdir={chdir}//python={python}'
         yield fmt.format(
             count=count,
             node=node,
@@ -248,29 +250,36 @@ def get_nodes_specs(
     :rtype: list
     """
     group = execnet.Group()
-    if virtualenv_path:
-        nm = NodeManager(config, specs=[])
-        virtualenv_path = os.path.relpath(virtualenv_path)
-    node_specs = []
-    node_caps = {}
-    rsync = RSync(getrootdir(config, ''), chdir, includes=config.getini("rsyncdirs"), **nm.rsyncoptions)
-    for node in unique_everseen(nodes):
-        host = node.split('@')[1] if '@' in node else node
-        spec = 'ssh={node}//id={host}//chdir={chdir}//python={python}'.format(
-            node=node,
-            host=host,
-            chdir=chdir,
-            python=python)
-        try:
-            make_gateway(group, spec)
-        except Exception:
-            continue
-        rsync.add_target_host(node)
-        node_specs.append((node, host))
-    if not node_specs:
-        pytest.exit('None of the given test nodes are connectable')
-    rsync.send()
     try:
+        if virtualenv_path:
+            nm = NodeManager(config, specs=[])
+            virtualenv_path = os.path.relpath(virtualenv_path)
+        node_specs = []
+        node_caps = {}
+        root_dir = getrootdir(config, '')
+        print('Detected root dir: {0}'.format(root_dir))
+        rsync = RSync(root_dir, chdir, includes=config.getini("rsyncdirs"), **nm.rsyncoptions)
+        print('Detecting connectable test nodes...')
+        for node in unique_everseen(nodes):
+            host = node.split('@')[1] if '@' in node else node
+            spec = 'ssh={node}//id={host}//chdir={chdir}//python={python}'.format(
+                node=node,
+                host=host,
+                chdir=chdir,
+                python=python)
+            try:
+                make_gateway(group, spec)
+            except Exception:
+                continue
+            rsync.add_target_host(node)
+            node_specs.append((node, host))
+        if node_specs:
+            print('Found {0} connectable test nodes: {1}'.format(len(node_specs), rsync.targets))
+        else:
+            pytest.exit('None of the given test nodes are connectable')
+        print('RSyncing directory structure')
+        rsync.send()
+        print('RSync finished')
         group.remote_exec(activate_env, virtualenv_path=virtualenv_path).waitclose()
         multi_channel = group.remote_exec(get_node_capabilities)
         try:
@@ -310,6 +319,8 @@ def check_options(config):
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process,
             config=config)
+        if node_specs:
+            print('Scheduling with {0} parallel test sessions'.format(len(node_specs)))
         if not node_specs:
             pytest.exit('None of the given test nodes are able to serve as a test node due to capabilities')
         config.option.tx += node_specs

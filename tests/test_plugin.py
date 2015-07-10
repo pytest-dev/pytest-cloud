@@ -18,9 +18,9 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          None,
          False,
          [
-             '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
-             '1*ssh=1.example.com//id=1.example.com_1//chdir=test//python=',
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
+             'ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
+             'popen//id=1.example.com_1//chdir=test//python=',
+             'ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
@@ -28,7 +28,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          None,
          False,
          [
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
+             'ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
@@ -36,8 +36,8 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          1,
          False,
          [
-             '1*ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
+             'ssh=1.example.com//id=1.example.com_0//chdir=test//python=',
+             'ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
@@ -45,7 +45,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          1,
          False,
          [
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
+             'ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
         ('1.example.com', '', 2, 100,
          '2.example.com', 'user', 1, 200,
@@ -53,7 +53,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
          1,
          True,
          [
-             '1*ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
+             'ssh=user@2.example.com//id=2.example.com_0//chdir=test//python=',
          ]),
     ]
 )
