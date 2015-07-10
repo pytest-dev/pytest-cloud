@@ -28,7 +28,7 @@ from .rsync import RSync
 from . import patches
 
 
-class SplinterXdistPlugin(object):
+class CloudXdistPlugin(object):
 
     """Plugin class to defer pytest-xdist hook handler."""
 
@@ -48,7 +48,7 @@ def pytest_configure(config):
         getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local' and
             config.option.cloud_nodes and
             config.pluginmanager.getplugin('xdist')):
-        config.pluginmanager.register(SplinterXdistPlugin())
+        config.pluginmanager.register(CloudXdistPlugin())
 
 
 class NodesAction(argparse.Action):
