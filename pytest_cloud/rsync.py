@@ -28,10 +28,12 @@ class RSync(object):
 
     """Send a directory structure (recursively) to one or multiple remote filesystems."""
 
-    def __init__(self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=10, **kwargs):
+    def __init__(
+            self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=10, debug=False, **kwargs):
         self.sourcedir = str(sourcedir)
         self.targetdir = str(targetdir)
         self.verbose = verbose
+        self.debug = debug
         self.ignores = ignores or []
         self.includes = set(includes or [])
         self.targets = set()
@@ -77,7 +79,7 @@ class RSync(object):
                     '--delete '
                     '-e \"ssh -T -c arcfour -o Compression=no -x\" '
                     '. {{}}:{chdir}'.format(
-                        verbose='v' if self.verbose else '',
+                        verbose='v' if self.debug else '',
                         jobs=self.jobs,
                         chdir=self.targetdir,
                         ignores=ignores_path,

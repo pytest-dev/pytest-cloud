@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.2.9
------
+1.2.10
+------
 
 - Fast native rsync instead of python based one (bubenkoff)
 
