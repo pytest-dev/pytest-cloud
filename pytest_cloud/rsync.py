@@ -29,7 +29,8 @@ class RSync(object):
     """Send a directory structure (recursively) to one or multiple remote filesystems."""
 
     def __init__(
-            self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=10, debug=False, **kwargs):
+            self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=None, debug=False,
+            bwlimit=None, **kwargs):
         self.sourcedir = str(sourcedir)
         self.targetdir = str(targetdir)
         self.verbose = verbose
@@ -38,6 +39,7 @@ class RSync(object):
         self.includes = set(includes or [])
         self.targets = set()
         self.jobs = jobs
+        self.bwlimit = bwlimit
 
     def get_ignores(self):
         """Get ignores."""
@@ -67,9 +69,9 @@ class RSync(object):
             subprocess.call(
                 [parallel] + (['--verbose'] if self.verbose else []) + [
                     '--gnu',
-                    '--jobs={0}'.format(min(len(self.targets), self.jobs)),
+                    '--jobs={0}'.format(self.jobs or len(self.targets)),
                     'rsync -arHAXx{verbose} '
-                    '--bwlimit=5000 '
+                    '{bwlimit}'
                     '--ignore-errors '
                     '--include-from={includes} '
                     '--exclude-from={ignores} '
@@ -81,6 +83,7 @@ class RSync(object):
                     '. {{}}:{chdir}'.format(
                         verbose='v' if self.debug else '',
                         jobs=self.jobs,
+                        bwlimit='--bwlimit={0} '.format(self.bwlimit) if self.bwlimit else '',
                         chdir=self.targetdir,
                         ignores=ignores_path,
                         includes=includes_path,

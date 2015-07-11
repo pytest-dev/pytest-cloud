@@ -99,10 +99,6 @@ def pytest_addoption(parser):
         help="relative path to the virtualenv to be used on the remote test nodes.", type='string', action="store",
         dest='cloud_virtualenv_path', metavar="PATH", default=get_virtualenv_path())
     group.addoption(
-        "--cloud-skip-virtualenv-rsync",
-        help="Skip an rsync of the virtualenv folder.", action="store_true",
-        dest='cloud_skip_virtualenv_rsync', default=False)
-    group.addoption(
         "--cloud-mem-per-process",
         help="amount of memory roughly needed for test process, in megabytes", type='int', action="store",
         dest='cloud_mem_per_process', metavar="NUMBER", default=None)
@@ -110,6 +106,14 @@ def pytest_addoption(parser):
         "--cloud-max-processes",
         help="maximum number of processes per test node", type='int', action="store",
         dest='cloud_max_processes', metavar="NUMBER", default=None)
+    group.addoption(
+        "--cloud-rsync-max-processes",
+        help="maximum number of rsync processes", type='int', action="store",
+        dest='cloud_rsync_max_processes', metavar="NUMBER", default=None)
+    group.addoption(
+        "--cloud-rsync-bandwidth-limit",
+        help="maximum number of processes per test node", type='int', action="store",
+        dest='cloud_rsync_bandwidth_limit', metavar="NUMBER", default=5000)
 
 
 @pytest.mark.tryfirst
@@ -220,7 +224,7 @@ def make_gateway(group, spec):
 
 def get_nodes_specs(
         nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None,
-        max_processes=None, config=None):
+        max_processes=None, rsync_max_processes=None, rsync_bandwidth_limit=None, config=None):
     """Get nodes specs.
 
     Get list of node names, connect to each of them, get the system information, produce the list of node specs out of
@@ -239,6 +243,10 @@ def get_nodes_specs(
     :type mem_per_process: int
     :param max_processes: optional maximum number of processes per test node
     :type max_processes: int
+    :param rsync_max_processes: optional maximum number of rsync processes
+    :type rsync_max_processes: int
+    :param rsync_bandwidth_limit: optional bandwidth limit per rsync process in kilobytes per second
+    :type rsync_bandwidth_limit: int
     :param config: pytest config object
     :type config: pytest.Config
 
@@ -254,10 +262,16 @@ def get_nodes_specs(
         node_specs = []
         node_caps = {}
         root_dir = getrootdir(config, '')
+        nodes = list(unique_everseen(nodes))
         print('Detected root dir: {0}'.format(root_dir))
-        rsync = RSync(root_dir, chdir, includes=config.getini("rsyncdirs"), **nm.rsyncoptions)
+        rsync = RSync(
+            root_dir, chdir, includes=config.getini("rsyncdirs"),
+            jobs=rsync_max_processes or len(nodes),
+            bwlimit=rsync_bandwidth_limit,
+            bandwidth_limit=rsync_bandwidth_limit,
+            **nm.rsyncoptions)
         print('Detecting connectable test nodes...')
-        for node in unique_everseen(nodes):
+        for node in nodes:
             host = node.split('@')[1] if '@' in node else node
             spec = 'ssh={node}//id={host}//chdir={chdir}//python={python}'.format(
                 node=node,
@@ -313,6 +327,8 @@ def check_options(config):
             chdir=chdir,
             python=python,
             virtualenv_path=virtualenv_path,
+            rsync_max_processes=config.option.cloud_rsync_max_processes,
+            rsync_bandwidth_limit=config.option.cloud_rsync_bandwidth_limit,
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process,
             config=config)

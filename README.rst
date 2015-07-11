@@ -33,9 +33,10 @@ When used, it will automatically detect capabilites of given node(s) and run onl
 able to handle. If will also filter out offline nodes or nodes which were failed to respond to the
 capabilities aquisition call.
 
-Supports automatic virtualenv activation on the test node so you don't have to install python dependencies
+Supports automatic codebase propagation to the test nodes, so you don't have to install python dependencies
 for your project on remote test nodes globally - just make sure that your virtualenv folder is `inside`
-your project folder - that's a requirement, and then pass it's relative path as a parameter (see below).
+your project folder - that's a requirement.
+It will also detect a root folder of the test environment (project root), and will `rsync` it to all test nodes.
 
 ATM only ssh transport is supported. So ensure that you have at least public key auth enabled to your test nodes
 from the master node (where py.test is executed).
@@ -71,6 +72,13 @@ Command-line options
 * `--cloud-max-processes`
     Optional maximum number of processes per test node. Overrides from above the calculated number
     of processes using memory and number of CPU cores.
+
+* `--cloud-rsync-bandwidth-limit`
+    Optional bandwidth limit per `rsync` process, in kilobytes per second. 5000 by default.
+
+* `--cloud-rsync-max-processes`
+    Optional process count limit for `rsync` processes. By default there's no limit so rsyncing will be in parallel
+    for all test nodes.
 
 
 Example
