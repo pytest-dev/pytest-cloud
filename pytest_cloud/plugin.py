@@ -184,10 +184,7 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
     if mem_per_process:
         count = min(int(math.floor(caps['virtual_memory']['available'] / mem_per_process)), count)
     for index in range(count):
-        if index == 0:
-            fmt = 'ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'
-        else:
-            fmt = 'popen//id={host}_{index}//via={host}_0//python={python}'
+        fmt = 'ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'
         yield fmt.format(
             count=count,
             node=node,
