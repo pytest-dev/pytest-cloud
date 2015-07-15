@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.12
+------
+
+- Add rsync progress to the output, change default bandwidth limit (bubenkoff)
+
 1.2.11
 ------
 

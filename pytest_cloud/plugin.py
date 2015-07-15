@@ -7,7 +7,7 @@ import argparse
 import timeout_decorator
 
 try:
-    from itertools import filterfalse
+    from itertools import filterfalse  # pylint: disable=E0611
 except ImportError:
     from itertools import ifilterfalse as filterfalse
 from itertools import chain
@@ -44,8 +44,7 @@ class CloudXdistPlugin(object):
 @pytest.mark.trylast
 def pytest_configure(config):
     """Register pytest-cloud's deferred plugin."""
-    if (
-        getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local' and
+    if (getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local' and
             config.option.cloud_nodes and
             config.pluginmanager.getplugin('xdist')):
         config.pluginmanager.register(CloudXdistPlugin())
@@ -56,6 +55,7 @@ class NodesAction(argparse.Action):
     """Parses out a space-separated list of nodes and extends dest with it."""
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """Parse out space-separated list of nodes."""
         items = argparse._copy.copy(argparse._ensure_value(namespace, self.dest, []))
         items.extend([value.strip() for value in values.split()])
         setattr(namespace, self.dest, items)
@@ -113,7 +113,7 @@ def pytest_addoption(parser):
     group.addoption(
         "--cloud-rsync-bandwidth-limit",
         help="maximum number of processes per test node", type='int', action="store",
-        dest='cloud_rsync_bandwidth_limit', metavar="NUMBER", default=5000)
+        dest='cloud_rsync_bandwidth_limit', metavar="NUMBER", default=10000)
 
 
 @pytest.mark.tryfirst
@@ -132,16 +132,16 @@ def activate_env(channel, virtualenv_path):
     :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
     :type virtualenv_path: str
     """
-    import os.path
-    import sys
-    import subprocess
+    import os.path  # pylint: disable=W0404
+    import sys  # pylint: disable=W0404
+    import subprocess  # pylint: disable=W0404
     PY3 = sys.version_info[0] > 2
     subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
     subprocess.check_call(['find', '.', '-name', '__pycache__', '-delete'])
     if virtualenv_path:
         activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
         if PY3:
-            exec(compile(open(activate_script).read()))
+            exec(compile(open(activate_script).read()))  # pylint: disable=W0122
         else:
             execfile(activate_script, {'__file__': activate_script})  # NOQA
 
@@ -280,7 +280,7 @@ def get_nodes_specs(
                 python=python)
             try:
                 make_gateway(group, spec)
-            except Exception:
+            except Exception:  # pylint: disable=W0703
                 continue
             rsync.add_target_host(node)
             node_specs.append((node, host))
@@ -303,19 +303,18 @@ def get_nodes_specs(
             get_node_specs(
                 node, hst, node_caps[hst], python=python, chdir=chdir, mem_per_process=mem_per_process,
                 max_processes=max_processes)
-            for node, hst in node_specs)
-        )
+            for node, hst in node_specs))
     finally:
         try:
             group.terminate()
-        except Exception:
+        except Exception:  # pylint: disable=W0703
             pass
 
 
 def check_options(config):
     """Process options to manipulate (produce other options) important for pytest-cloud."""
     if getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local' and config.option.cloud_nodes:
-        patches.apply()
+        patches.apply_patches()
         mem_per_process = config.option.cloud_mem_per_process
         if mem_per_process:
             mem_per_process = mem_per_process * 1024 * 1024

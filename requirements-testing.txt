@@ -1,3 +1,6 @@
+coverage
 mock<=1.0.1
+mysqlclient
+pylama
+pylama_pylint
 pytest-pep8
-pytest-cov

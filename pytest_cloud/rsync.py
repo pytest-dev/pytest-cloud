@@ -3,7 +3,7 @@ import os
 import tempfile
 import subprocess
 
-from distutils.spawn import find_executable
+from distutils.spawn import find_executable  # pylint: disable=E0611
 import py
 
 
@@ -31,6 +31,7 @@ class RSync(object):
     def __init__(
             self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=None, debug=False,
             bwlimit=None, **kwargs):
+        """Initialize new RSync instance."""
         self.sourcedir = str(sourcedir)
         self.targetdir = str(targetdir)
         self.verbose = verbose
@@ -77,12 +78,12 @@ class RSync(object):
                     '--exclude-from={ignores} '
                     '--numeric-ids '
                     '--force '
+                    '--info=progress2 '
                     '--delete-excluded '
                     '--delete '
                     '-e \"ssh -T -c arcfour -o Compression=no -x\" '
                     '. {{}}:{chdir}'.format(
                         verbose='v' if self.debug else '',
-                        jobs=self.jobs,
                         bwlimit='--bwlimit={0} '.format(self.bwlimit) if self.bwlimit else '',
                         chdir=self.targetdir,
                         ignores=ignores_path,
