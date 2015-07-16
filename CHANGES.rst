@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.15
+1.2.16
 ------
 
 - Correctly handle python path on remote side (bubenkoff)
