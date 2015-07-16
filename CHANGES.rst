@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.3.0
+-----
+
+- Add develop eggs setting to install packages on remote side in development mode (bubenkoff)
+
 1.2.16
 ------
 

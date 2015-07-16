@@ -38,7 +38,8 @@ class CloudXdistPlugin(object):
         Acivate the virtual env, so the node is able to import dependencies.
         """
         virtualenv_path = node.config.option.cloud_virtualenv_path
-        node.gateway.remote_exec(activate_env, virtualenv_path=virtualenv_path).waitclose()
+        develop_eggs = get_develop_eggs(getrootdir(node.config, ''), node.config)
+        node.gateway.remote_exec(activate_env, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs).waitclose()
 
 
 @pytest.mark.trylast
@@ -114,6 +115,9 @@ def pytest_addoption(parser):
         "--cloud-rsync-bandwidth-limit",
         help="maximum number of processes per test node", type='int', action="store",
         dest='cloud_rsync_bandwidth_limit', metavar="NUMBER", default=10000)
+    parser.addini(
+        'cloud_develop_eggs', 'list of python package paths to install in develop mode on the remote side',
+        type="pathlist")
 
 
 @pytest.mark.tryfirst
@@ -122,7 +126,7 @@ def pytest_cmdline_main(config):
     check_options(config)
 
 
-def activate_env(channel, virtualenv_path):
+def activate_env(channel, virtualenv_path, develop_eggs):
     """Activate virtual environment.
 
     Executed on the remote side.
@@ -135,6 +139,7 @@ def activate_env(channel, virtualenv_path):
     import os.path  # pylint: disable=W0404
     import sys  # pylint: disable=W0404
     import subprocess  # pylint: disable=W0404
+    from itertools import chain  # pylint: disable=W0404
     PY3 = sys.version_info[0] > 2
     subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
     subprocess.check_call(['find', '.', '-name', '__pycache__', '-delete'])
@@ -144,6 +149,8 @@ def activate_env(channel, virtualenv_path):
             exec(compile(open(activate_script).read()))  # pylint: disable=W0122
         else:
             execfile(activate_script, {'__file__': activate_script})  # NOQA
+        if develop_eggs:
+            subprocess.check_call(['pip', 'install'] + list(chain.from_iterable([('-e', egg) for egg in develop_eggs])))
 
 
 def get_node_capabilities(channel):
@@ -291,7 +298,9 @@ def get_nodes_specs(
         print('RSyncing directory structure')
         rsync.send()
         print('RSync finished')
-        group.remote_exec(activate_env, virtualenv_path=virtualenv_path).waitclose()
+        develop_eggs = get_develop_eggs(root_dir, config)
+        group.remote_exec(
+            activate_env, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs).waitclose()
         multi_channel = group.remote_exec(get_node_capabilities)
         try:
             caps = multi_channel.receive_each(True)
@@ -310,6 +319,11 @@ def get_nodes_specs(
             group.terminate()
         except Exception:  # pylint: disable=W0703
             pass
+
+
+def get_develop_eggs(root_dir, config):
+    """Get list of eggs to install in develop mode."""
+    return ['.' + os.path.sep + path.relto(root_dir) for path in config.getini('cloud_develop_eggs')]
 
 
 def check_options(config):

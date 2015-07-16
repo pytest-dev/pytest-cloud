@@ -81,6 +81,14 @@ Command-line options
     for all test nodes.
 
 
+Ini file options
+----------------
+
+* `cloud_develop_eggs`
+    Optional list of python package paths to install in development mode on remote side. Required to be inside of the
+    project root directory.
+
+
 Example
 -------
 
