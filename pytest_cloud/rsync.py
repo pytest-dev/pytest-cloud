@@ -78,6 +78,7 @@ class RSync(object):
                     '--exclude-from={ignores} '
                     '--numeric-ids '
                     '--force '
+                    '--safe-links '
                     '--info=progress2 '
                     '--delete-excluded '
                     '--delete '
