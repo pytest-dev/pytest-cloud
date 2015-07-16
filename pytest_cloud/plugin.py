@@ -301,7 +301,8 @@ def get_nodes_specs(
             multi_channel.waitclose()
         return list(chain.from_iterable(
             get_node_specs(
-                node, hst, node_caps[hst], python=python, chdir=chdir, mem_per_process=mem_per_process,
+                node, hst, node_caps[hst], python=os.path.join(chdir, virtualenv_path, 'bin', python),
+                chdir=chdir, mem_per_process=mem_per_process,
                 max_processes=max_processes)
             for node, hst in node_specs))
     finally:
