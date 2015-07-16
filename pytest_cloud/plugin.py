@@ -126,7 +126,7 @@ def pytest_cmdline_main(config):
     check_options(config)
 
 
-def activate_env(channel, virtualenv_path, develop_eggs):
+def activate_env(channel, virtualenv_path, develop_eggs=None):
     """Activate virtual environment.
 
     Executed on the remote side.
@@ -135,6 +135,8 @@ def activate_env(channel, virtualenv_path, develop_eggs):
     :type channel: execnet.gateway_base.Channel
     :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
     :type virtualenv_path: str
+    :param develop_eggs: optional list of python packages to be installed in develop mode
+    :type develop_eggs: list
     """
     import os.path  # pylint: disable=W0404
     import sys  # pylint: disable=W0404
@@ -150,7 +152,12 @@ def activate_env(channel, virtualenv_path, develop_eggs):
         else:
             execfile(activate_script, {'__file__': activate_script})  # NOQA
         if develop_eggs:
-            subprocess.check_call(['pip', 'install'] + list(chain.from_iterable([('-e', egg) for egg in develop_eggs])))
+            python_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'python')))
+            pip_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'pip')))
+            args = (
+                (python_script, pip_script, 'install', '--no-index', '--no-deps') +
+                tuple(chain.from_iterable([('-e', egg) for egg in develop_eggs])))
+            subprocess.check_call(args)
 
 
 def get_node_capabilities(channel):
@@ -298,9 +305,8 @@ def get_nodes_specs(
         print('RSyncing directory structure')
         rsync.send()
         print('RSync finished')
-        develop_eggs = get_develop_eggs(root_dir, config)
         group.remote_exec(
-            activate_env, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs).waitclose()
+            activate_env, virtualenv_path=virtualenv_path).waitclose()
         multi_channel = group.remote_exec(get_node_capabilities)
         try:
             caps = multi_channel.receive_each(True)
