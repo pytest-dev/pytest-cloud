@@ -144,7 +144,6 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
     from itertools import chain  # pylint: disable=W0404
     PY3 = sys.version_info[0] > 2
     subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
-    subprocess.check_call(['find', '.', '-name', '__pycache__', '-delete'])
     if virtualenv_path:
         if develop_eggs:
             python_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'python')))
