@@ -9,7 +9,7 @@ import timeout_decorator
 try:
     from itertools import filterfalse  # pylint: disable=E0611
 except ImportError:
-    from itertools import ifilterfalse as filterfalse
+    from itertools import ifilterfalse as filterfalse  # pylint: disable=E0611
 from itertools import chain
 import math
 import os.path
