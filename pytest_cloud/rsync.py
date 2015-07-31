@@ -79,7 +79,6 @@ class RSync(object):
                     '--numeric-ids '
                     '--force '
                     '--inplace '
-                    '--info=progress2 '
                     '--delete-excluded '
                     '--delete '
                     '-e \"ssh -T -c arcfour -o Compression=no -x\" '
