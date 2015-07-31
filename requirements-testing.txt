@@ -4,3 +4,4 @@ mysqlclient
 pylama
 pylama_pylint
 pytest-pep8
+astroid==1.3.6
