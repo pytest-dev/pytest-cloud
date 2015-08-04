@@ -202,6 +202,11 @@ def make_gateway(group, spec):
     group.makegateway(spec)
 
 
+def get_develop_eggs(root_dir, config):
+    """Get list of eggs to install in develop mode."""
+    return ['.' + os.path.sep + path.relto(root_dir) for path in config.getini('cloud_develop_eggs')]
+
+
 def get_nodes_specs(
         nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None,
         max_processes=None, rsync_max_processes=None, rsync_bandwidth_limit=None, config=None):
@@ -271,8 +276,9 @@ def get_nodes_specs(
         print('RSyncing directory structure')
         rsync.send()
         print('RSync finished')
+        develop_eggs = get_develop_eggs(root_dir, config)
         group.remote_exec(
-            patches.activate_env, virtualenv_path=virtualenv_path).waitclose()
+            patches.activate_env, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs).waitclose()
         multi_channel = group.remote_exec(get_node_capabilities)
         try:
             caps = multi_channel.receive_each(True)

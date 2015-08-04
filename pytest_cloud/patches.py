@@ -2,7 +2,6 @@
 import os
 import xdist
 from xdist import slavemanage
-from pytest_cache import getrootdir
 
 from .rsync import make_reltoroot
 
@@ -26,11 +25,6 @@ def rsync(self, gateway, source, notify=None, verbose=False, ignores=None):
         source=source,
         gateways=[gateway],
     )
-
-
-def get_develop_eggs(root_dir, config):
-    """Get list of eggs to install in develop mode."""
-    return ['.' + os.path.sep + path.relto(root_dir) for path in config.getini('cloud_develop_eggs')]
 
 
 def activate_env(channel, virtualenv_path, develop_eggs=None):
@@ -81,13 +75,12 @@ def setup(self):
     self.config.hook.pytest_configure_node(node=self)
     self.channel = self.gateway.remote_exec(xdist.remote)
     virtualenv_path = self.config.option.cloud_virtualenv_path
-    develop_eggs = get_develop_eggs(getrootdir(self.config, ''), self.config)
     if self.putevent:
         self.channel.setcallback(
             self.process_from_remote,
             endmarker=self.ENDMARK)
     self.channel.send((self.slaveinput, args, option_dict))
-    self.channel.send((virtualenv_path, develop_eggs))
+    self.channel.send(virtualenv_path)
 
 old_remote_initconfig = xdist.remote.remote_initconfig
 
@@ -95,8 +88,8 @@ old_remote_initconfig = xdist.remote.remote_initconfig
 def remote_initconfig(option_dict, args):
     """Init configuration on remote side."""
     channel = channel  # NOQA
-    virtualenv_path, develop_eggs = channel.receive()
-    activate_env(channel, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs)
+    virtualenv_path = channel.receive()
+    activate_env(channel, virtualenv_path=virtualenv_path)
     return old_remote_initconfig(option_dict, args)
 
 
