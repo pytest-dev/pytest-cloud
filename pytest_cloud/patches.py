@@ -2,6 +2,7 @@
 import os
 import xdist
 from xdist import slavemanage
+from pytest_cache import getrootdir
 
 from .rsync import make_reltoroot
 
@@ -27,6 +28,44 @@ def rsync(self, gateway, source, notify=None, verbose=False, ignores=None):
     )
 
 
+def get_develop_eggs(root_dir, config):
+    """Get list of eggs to install in develop mode."""
+    return ['.' + os.path.sep + path.relto(root_dir) for path in config.getini('cloud_develop_eggs')]
+
+
+def activate_env(channel, virtualenv_path, develop_eggs=None):
+    """Activate virtual environment.
+
+    Executed on the remote side.
+
+    :param channel: execnet channel for communication with master node
+    :type channel: execnet.gateway_base.Channel
+    :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
+    :type virtualenv_path: str
+    :param develop_eggs: optional list of python packages to be installed in develop mode
+    :type develop_eggs: list
+    """
+    import os.path  # pylint: disable=W0404
+    import sys  # pylint: disable=W0404
+    import subprocess  # pylint: disable=W0404
+    from itertools import chain  # pylint: disable=W0404
+    PY3 = sys.version_info[0] > 2
+    subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
+    if virtualenv_path:
+        if develop_eggs:
+            python_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'python')))
+            pip_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'pip')))
+            args = (
+                (python_script, pip_script, 'install', '--no-index', '--no-deps') +
+                tuple(chain.from_iterable([('-e', egg) for egg in develop_eggs])))
+            subprocess.check_call(args)
+        activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
+        if PY3:
+            exec(compile(open(activate_script).read()))  # pylint: disable=W0122
+        else:
+            execfile(activate_script, {'__file__': activate_script})  # NOQA
+
+
 def setup(self):
     """Setup a new test slave."""
     self.log("setting up slave session")
@@ -41,15 +80,29 @@ def setup(self):
         option_dict['basetemp'] = str(basetemp.join(name))
     self.config.hook.pytest_configure_node(node=self)
     self.channel = self.gateway.remote_exec(xdist.remote)
-    self.channel.send((self.slaveinput, args, option_dict))
+    virtualenv_path = self.config.option.cloud_virtualenv_path
+    develop_eggs = get_develop_eggs(getrootdir(self.config, ''), self.config)
     if self.putevent:
         self.channel.setcallback(
             self.process_from_remote,
             endmarker=self.ENDMARK)
+    self.channel.send((self.slaveinput, args, option_dict))
+    self.channel.send((virtualenv_path, develop_eggs))
+
+old_remote_initconfig = xdist.remote.remote_initconfig
+
+
+def remote_initconfig(option_dict, args):
+    """Init configuration on remote side."""
+    channel = channel  # NOQA
+    virtualenv_path, develop_eggs = channel.receive()
+    activate_env(channel, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs)
+    return old_remote_initconfig(option_dict, args)
 
 
 def apply_patches():
     """Apply monkey patches."""
+    xdist.remote.remote_initconfig = remote_initconfig
     slavemanage.make_reltoroot = make_reltoroot
     slavemanage.NodeManager.rsync = rsync
     slavemanage.SlaveController.setup = setup

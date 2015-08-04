@@ -32,14 +32,14 @@ class CloudXdistPlugin(object):
 
     """Plugin class to defer pytest-xdist hook handler."""
 
-    def pytest_configure_node(self, node):
-        """Configure node information before it gets instantiated.
+    # def pytest_configure_node(self, node):
+    #     """Configure node information before it gets instantiated.
 
-        Acivate the virtual env, so the node is able to import dependencies.
-        """
-        virtualenv_path = node.config.option.cloud_virtualenv_path
-        develop_eggs = get_develop_eggs(getrootdir(node.config, ''), node.config)
-        node.gateway.remote_exec(activate_env, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs).waitclose()
+    #     Acivate the virtual env, so the node is able to import dependencies.
+    #     """
+    #     virtualenv_path = node.config.option.cloud_virtualenv_path
+    #     develop_eggs = get_develop_eggs(getrootdir(node.config, ''), node.config)
+    #     node.gateway.remote_exec(activate_env, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs).waitclose()
 
 
 @pytest.mark.trylast
@@ -126,39 +126,6 @@ def pytest_cmdline_main(config):
     check_options(config)
 
 
-def activate_env(channel, virtualenv_path, develop_eggs=None):
-    """Activate virtual environment.
-
-    Executed on the remote side.
-
-    :param channel: execnet channel for communication with master node
-    :type channel: execnet.gateway_base.Channel
-    :param virtualenv_path: relative path to the virtualenv to activate on the remote test node
-    :type virtualenv_path: str
-    :param develop_eggs: optional list of python packages to be installed in develop mode
-    :type develop_eggs: list
-    """
-    import os.path  # pylint: disable=W0404
-    import sys  # pylint: disable=W0404
-    import subprocess  # pylint: disable=W0404
-    from itertools import chain  # pylint: disable=W0404
-    PY3 = sys.version_info[0] > 2
-    subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
-    if virtualenv_path:
-        if develop_eggs:
-            python_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'python')))
-            pip_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'pip')))
-            args = (
-                (python_script, pip_script, 'install', '--no-index', '--no-deps') +
-                tuple(chain.from_iterable([('-e', egg) for egg in develop_eggs])))
-            subprocess.check_call(args)
-        activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
-        if PY3:
-            exec(compile(open(activate_script).read()))  # pylint: disable=W0122
-        else:
-            execfile(activate_script, {'__file__': activate_script})  # NOQA
-
-
 def get_node_capabilities(channel):
     """Get test node capabilities.
 
@@ -201,10 +168,7 @@ def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=No
     if mem_per_process:
         count = min(int(math.floor(caps['virtual_memory']['available'] / mem_per_process)), count)
     for index in range(count):
-        if index == 0:
-            fmt = 'ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'
-        else:
-            fmt = 'popen//via={host}_0//id={host}_{index}'
+        fmt = 'ssh={node}//id={host}_{index}//chdir={chdir}//python={python}'
         yield fmt.format(
             count=count,
             node=node,
@@ -308,7 +272,7 @@ def get_nodes_specs(
         rsync.send()
         print('RSync finished')
         group.remote_exec(
-            activate_env, virtualenv_path=virtualenv_path).waitclose()
+            patches.activate_env, virtualenv_path=virtualenv_path).waitclose()
         multi_channel = group.remote_exec(get_node_capabilities)
         try:
             caps = multi_channel.receive_each(True)
@@ -327,11 +291,6 @@ def get_nodes_specs(
             group.terminate()
         except Exception:  # pylint: disable=W0703
             pass
-
-
-def get_develop_eggs(root_dir, config):
-    """Get list of eggs to install in develop mode."""
-    return ['.' + os.path.sep + path.relto(root_dir) for path in config.getini('cloud_develop_eggs')]
 
 
 def check_options(config):
