@@ -74,28 +74,15 @@ def setup(self):
         option_dict['basetemp'] = str(basetemp.join(name))
     self.config.hook.pytest_configure_node(node=self)
     self.channel = self.gateway.remote_exec(xdist.remote)
-    virtualenv_path = self.config.option.cloud_virtualenv_path
     if self.putevent:
         self.channel.setcallback(
             self.process_from_remote,
             endmarker=self.ENDMARK)
     self.channel.send((self.slaveinput, args, option_dict))
-    self.channel.send(virtualenv_path)
-
-old_remote_initconfig = xdist.remote.remote_initconfig
-
-
-def remote_initconfig(option_dict, args):
-    """Init configuration on remote side."""
-    channel = channel  # NOQA
-    virtualenv_path = channel.receive()
-    activate_env(channel, virtualenv_path=virtualenv_path)
-    return old_remote_initconfig(option_dict, args)
 
 
 def apply_patches():
     """Apply monkey patches."""
-    xdist.remote.remote_initconfig = remote_initconfig
     slavemanage.make_reltoroot = make_reltoroot
     slavemanage.NodeManager.rsync = rsync
     slavemanage.SlaveController.setup = setup

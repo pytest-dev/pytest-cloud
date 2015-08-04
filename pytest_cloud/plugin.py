@@ -32,15 +32,6 @@ class CloudXdistPlugin(object):
 
     """Plugin class to defer pytest-xdist hook handler."""
 
-    # def pytest_configure_node(self, node):
-    #     """Configure node information before it gets instantiated.
-
-    #     Acivate the virtual env, so the node is able to import dependencies.
-    #     """
-    #     virtualenv_path = node.config.option.cloud_virtualenv_path
-    #     develop_eggs = get_develop_eggs(getrootdir(node.config, ''), node.config)
-    #     node.gateway.remote_exec(activate_env, virtualenv_path=virtualenv_path, develop_eggs=develop_eggs).waitclose()
-
 
 @pytest.mark.trylast
 def pytest_configure(config):
