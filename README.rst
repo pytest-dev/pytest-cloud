@@ -31,7 +31,7 @@ The plugin provides an easy way of running tests amoung several test nodes (slav
 Uses the great pytest-xdist_ plugin for actual distributed run.
 When used, it will automatically detect capabilites of given node(s) and run only the number of test processes it is
 able to handle. If will also filter out offline nodes or nodes which were failed to respond to the
-capabilities aquisition call.
+capabilities acquisition call.
 
 Supports automatic codebase propagation to the test nodes, so you don't have to install python dependencies
 for your project on remote test nodes globally - just make sure that your virtualenv folder is `inside`
