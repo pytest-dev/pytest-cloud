@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.3.8
+-----
+
+- Add verbosity to rsync progress (bubenkoff)
+
 1.3.4
 -----
 

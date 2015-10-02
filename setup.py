@@ -27,7 +27,7 @@ setup(
     url='https://github.com/pytest-dev/pytest-cloud',
     install_requires=[
         'psutil',
-        'pytest',
+        'pytest<2.8.0',
         'pytest-xdist',
         'pytest-cache',
         'setuptools',

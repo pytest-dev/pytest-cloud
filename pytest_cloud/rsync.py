@@ -83,7 +83,7 @@ class RSync(object):
                     '--delete '
                     '-e \"ssh -T -c arcfour -o Compression=no -x\" '
                     '. {{}}:{chdir}'.format(
-                        verbose='v' if self.debug else '',
+                        verbose='v' if self.verbose else '',
                         bwlimit='--bwlimit={0} '.format(self.bwlimit) if self.bwlimit else '',
                         chdir=self.targetdir,
                         ignores=ignores_path,
