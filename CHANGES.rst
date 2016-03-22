@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.0.0
+-----
+
+- pytest fixed version number is removed from the requirements (olegpidsadnyi)
+- removed pytest-cache dependency (olegpidsadnyi)
+
 1.3.8
 -----
 

@@ -1,1 +1,3 @@
-__version__ = '1.3.8'
+"""PyTest Cloud."""
+
+__version__ = '2.0.0'
