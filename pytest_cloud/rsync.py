@@ -1,4 +1,5 @@
 """Faster rsync."""
+
 import os
 import tempfile
 import subprocess
@@ -25,7 +26,6 @@ def make_reltoroot(roots, args):
 
 
 class RSync(object):
-
     """Send a directory structure (recursively) to one or multiple remote filesystems."""
 
     def __init__(

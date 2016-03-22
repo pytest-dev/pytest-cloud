@@ -3,8 +3,9 @@
 Provides an easy way of running tests amoung several test nodes (slaves).
 """
 from __future__ import division
+
 import argparse
-import timeout_decorator
+import sys
 
 try:
     from itertools import filterfalse  # pylint: disable=E0611
@@ -13,13 +14,13 @@ except ImportError:
 from itertools import chain
 import math
 import os.path
-import sys
+
+import timeout_decorator
 
 import execnet
 from xdist.slavemanage import (
     NodeManager,
 )
-from pytest_cache import getrootdir
 import six
 
 import pytest
@@ -29,7 +30,6 @@ from . import patches
 
 
 class CloudXdistPlugin(object):
-
     """Plugin class to defer pytest-xdist hook handler."""
 
 
@@ -43,7 +43,6 @@ def pytest_configure(config):
 
 
 class NodesAction(argparse.Action):
-
     """Parses out a space-separated list of nodes and extends dest with it."""
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -237,7 +236,7 @@ def get_nodes_specs(
             virtualenv_path = os.path.relpath(virtualenv_path)
         node_specs = []
         node_caps = {}
-        root_dir = getrootdir(config, '')
+        root_dir = config.rootdir
         nodes = list(unique_everseen(nodes))
         print('Detected root dir: {0}'.format(root_dir))
         rsync = RSync(
