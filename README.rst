@@ -27,7 +27,7 @@ Install pytest-cloud
 Features
 --------
 
-The plugin provides an easy way of running tests amoung several test nodes (slaves).
+The plugin provides an easy way of running tests among several test nodes (slaves).
 Uses the great pytest-xdist_ plugin for actual distributed run.
 When used, it will automatically detect capabilites of given node(s) and run only the number of test processes it is
 able to handle. If will also filter out offline nodes or nodes which were failed to respond to the
