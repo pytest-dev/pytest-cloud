@@ -2,7 +2,7 @@
 
 import os
 import xdist
-from xdist import slavemanage
+from xdist import workermanage
 
 from .rsync import make_reltoroot
 
@@ -62,7 +62,7 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
 
 
 def setup(self):
-    """Setup a new test slave."""
+    """Set up a new test slave."""
     self.log("setting up slave session")
     spec = self.gateway.spec
     args = self.config.args
@@ -84,6 +84,6 @@ def setup(self):
 
 def apply_patches():
     """Apply monkey patches."""
-    slavemanage.make_reltoroot = make_reltoroot
-    slavemanage.NodeManager.rsync = rsync
-    slavemanage.SlaveController.setup = setup
+    workermanage.make_reltoroot = make_reltoroot
+    workermanage.NodeManager.rsync = rsync
+    workermanage.WorkerController.setup = setup

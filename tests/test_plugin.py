@@ -14,7 +14,7 @@ PYTHON = 'python{0}.{1}'.format(*sys.version_info)
 
 @pytest.fixture
 def mocked_group(request):
-    """Mocked execnet.Group."""
+    """Mock execnet.Group."""
     group = execnet.Group
 
     def fin():
@@ -29,7 +29,7 @@ def mocked_group(request):
 
 @pytest.fixture
 def mocked_dsession(request):
-    """Mocked xdist.dsession.DSession."""
+    """Mock xdist.dsession.DSession."""
     dsession = xdist.dsession.DSession
 
     def fin():
@@ -71,7 +71,7 @@ def mocked_dsession(request):
 
 @pytest.fixture
 def mocked_rsync(request):
-    """Mocked pytest_cloud.plugin.RSync."""
+    """Mock pytest_cloud.plugin.RSync."""
     rsync = pytest_cloud.plugin.RSync
 
     def fin():

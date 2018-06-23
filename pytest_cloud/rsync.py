@@ -11,7 +11,7 @@ import py
 def make_reltoroot(roots, args):
     """Non validating make_reltoroot."""
     splitcode = "::"
-    l = []
+    res = []
     for arg in args:
         arg = str(arg)
         parts = arg.split(splitcode)
@@ -21,8 +21,8 @@ def make_reltoroot(roots, args):
             if x or fspath == root:
                 parts[0] = root.basename + "/" + x
                 break
-        l.append(splitcode.join(parts))
-    return l
+        res.append(splitcode.join(parts))
+    return res
 
 
 class RSync(object):

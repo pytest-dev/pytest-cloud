@@ -18,7 +18,7 @@ import os.path
 import timeout_decorator
 
 import execnet
-from xdist.slavemanage import (
+from xdist.workermanage import (
     NodeManager,
 )
 import six
@@ -57,6 +57,7 @@ def get_virtualenv_path():
     venv_path = os.path.realpath(os.path.dirname(os.path.dirname(sys.executable)))
     if os.path.realpath(os.environ['PWD']) in venv_path:
         return os.path.relpath(venv_path)
+    return None
 
 
 def pytest_addoption(parser):
@@ -112,7 +113,7 @@ def pytest_addoption(parser):
 
 @pytest.mark.tryfirst
 def pytest_cmdline_main(config):
-    """Custom cmd line manipulation for pytest-cloud."""
+    """Apply custom cmd line manipulation for pytest-cloud."""
     check_options(config)
 
 

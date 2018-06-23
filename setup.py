@@ -28,7 +28,7 @@ setup(
     install_requires=[
         'psutil',
         'pytest>=2.7.0',
-        'pytest-xdist',
+        'pytest-xdist>=1.22.1',
         'setuptools',
         'six',
         'timeout-decorator>=0.3.2',
@@ -45,7 +45,7 @@ setup(
         'Topic :: Utilities',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
-    ] + [('Programming Language :: Python :: %s' % x) for x in '2.6 2.7 3.0 3.1 3.2 3.3 3.4'.split()],
+    ] + [('Programming Language :: Python :: %s' % x) for x in '2.7 3.0 3.1 3.2 3.3 3.4 3.5 3.6'.split()],
     tests_require=['tox'],
     entry_points={'pytest11': [
         'pytest-cloud=pytest_cloud.plugin',

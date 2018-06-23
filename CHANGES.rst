@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.0
+-----
+
+- support pytest-xdist >=1.22.1 (bubenkoff)
+
 2.0.0
 -----
 

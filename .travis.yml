@@ -1,11 +1,11 @@
 sudo: false
 language: python
-python: "3.4"
+python: "3.6"
 env:
   matrix:
     - TESTENV=linters
     - TESTENV=py27
-    - TESTENV=py34
+    - TESTENV=py36
     - TESTENV=coveralls
 install:
   - pip install tox
