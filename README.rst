@@ -18,6 +18,11 @@ Install pytest-cloud
 ::
 
     pip install pytest-cloud
+    
+    # install GNU parallel utility
+    # https://www.gnu.org/software/parallel/
+    # for MacOS, you can use:
+    brew install parallel
 
 
 .. _pytest: http://pytest.org
