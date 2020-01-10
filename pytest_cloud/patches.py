@@ -41,10 +41,10 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
     :param develop_eggs: optional list of python packages to be installed in develop mode
     :type develop_eggs: list
     """
-    import os.path  # pylint: disable=W0404
-    import sys  # pylint: disable=W0404
-    import subprocess  # pylint: disable=W0404
-    from itertools import chain  # pylint: disable=W0404
+    import os.path  # pylint: disable=W0404,C0415
+    import sys  # pylint: disable=W0404,C0415
+    import subprocess  # pylint: disable=W0404,C0415
+    from itertools import chain  # pylint: disable=W0404,C0415
     py3 = sys.version_info[0] > 2
     subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
     if virtualenv_path:

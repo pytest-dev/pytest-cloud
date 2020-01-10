@@ -46,7 +46,7 @@ def mocked_dsession(request):
         return {}
 
     def rep():
-        # pylint: disable=R0903
+        # pylint: disable=R0903,R0205
         class Report(object):
             skipped = []
             call = []
@@ -156,6 +156,7 @@ def test_schedule(
         params.append('--cloud-mem-per-process={0}'.format(mem_per_process))
     if max_processes:
         params.append('--cloud-max-processes={0}'.format(max_processes))
+
     testdir.inline_run(*params)
     assert mocked_rsync.call_args[0] == (testdir.tmpdir, 'test')
     assert mocked_rsync.return_value.add_target_host.call_args_list == [

@@ -29,7 +29,7 @@ from .rsync import RSync
 from . import patches
 
 
-# pylint: disable=R0903
+# pylint: disable=R0903,R0205
 class CloudXdistPlugin(object):
     """Plugin class to defer pytest-xdist hook handler."""
 
@@ -43,13 +43,26 @@ def pytest_configure(config):
         config.pluginmanager.register(CloudXdistPlugin())
 
 
+# pylint: disable=W0105
+def _ensure_value(namespace, name, value):
+    """Ensure value in the namespace. Copied from older version of argparse as is."""
+    if getattr(namespace, name, None) is None:
+        setattr(namespace, name, value)
+    return getattr(namespace, name)
+
+
 # pylint: disable=R0903
 class NodesAction(argparse.Action):
     """Parses out a space-separated list of nodes and extends dest with it."""
 
     def __call__(self, parser, namespace, values, option_string=None):
         """Parse out space-separated list of nodes."""
-        items = argparse._copy.copy(argparse._ensure_value(namespace, self.dest, []))
+        if not hasattr(argparse, "_copy_items"):
+            # pylint: disable=E1101
+            copy = argparse._copy.copy
+        else:
+            copy = argparse._copy_items
+        items = copy(_ensure_value(namespace, self.dest, []))
         items.extend([value.strip() for value in values.split()])
         setattr(namespace, self.dest, items)
 
@@ -130,7 +143,7 @@ def get_node_capabilities(channel):
     :return: `dict` in form {'cpu_count': 1, 'virtual_memory': {'available': 100, 'total': 200}}
     :rtype: dict
     """
-    import psutil
+    import psutil  # pylint: disable=C0415
     memory = psutil.virtual_memory()
     caps = dict(cpu_count=psutil.cpu_count(), virtual_memory=dict(available=memory.available, total=memory.total))
     channel.send(caps)

@@ -26,7 +26,7 @@ def make_reltoroot(roots, args):
     return res
 
 
-# pylint: disable=R0902
+# pylint: disable=R0902,R0205
 class RSync(object):
     """Send a directory structure (recursively) to one or multiple remote filesystems."""
 
