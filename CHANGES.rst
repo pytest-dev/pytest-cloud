@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.1
+-----
+
+- support python 3.7 (bubenkoff)
+
 3.0.0
 -----
 
