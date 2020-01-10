@@ -29,6 +29,7 @@ from .rsync import RSync
 from . import patches
 
 
+# pylint: disable=R0903
 class CloudXdistPlugin(object):
     """Plugin class to defer pytest-xdist hook handler."""
 
@@ -42,6 +43,7 @@ def pytest_configure(config):
         config.pluginmanager.register(CloudXdistPlugin())
 
 
+# pylint: disable=R0903
 class NodesAction(argparse.Action):
     """Parses out a space-separated list of nodes and extends dest with it."""
 
@@ -134,6 +136,7 @@ def get_node_capabilities(channel):
     channel.send(caps)
 
 
+# pylint: disable=R0913
 def get_node_specs(node, host, caps, python=None, chdir=None, mem_per_process=None, max_processes=None):
     """Get single node specs.
 
@@ -230,10 +233,11 @@ def get_nodes_specs(
         in form ['1*ssh=<node>//id=<hostname>:<index>', ...]
     :rtype: list
     """
+    # pylint: disable=E1101
     group = execnet.Group()
     try:
         if virtualenv_path:
-            nm = NodeManager(config, specs=[])
+            n_m = NodeManager(config, specs=[])
             virtualenv_path = os.path.relpath(virtualenv_path)
         node_specs = []
         node_caps = {}
@@ -245,7 +249,7 @@ def get_nodes_specs(
             jobs=rsync_max_processes or len(nodes),
             bwlimit=rsync_bandwidth_limit,
             bandwidth_limit=rsync_bandwidth_limit,
-            **nm.rsyncoptions)
+            **n_m.rsyncoptions)
         print('Detecting connectable test nodes...')
         for node in nodes:
             host = node.split('@')[1] if '@' in node else node
@@ -273,8 +277,8 @@ def get_nodes_specs(
         multi_channel = group.remote_exec(get_node_capabilities)
         try:
             caps = multi_channel.receive_each(True)
-            for ch, cap in caps:
-                node_caps[ch.gateway.id] = cap
+            for channel, cap in caps:
+                node_caps[channel.gateway.id] = cap
         finally:
             multi_channel.waitclose()
         return list(chain.from_iterable(

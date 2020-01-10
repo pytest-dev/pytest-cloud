@@ -7,6 +7,7 @@ from xdist import workermanage
 from .rsync import make_reltoroot
 
 
+# pylint: disable=R0913,W0613
 def rsync(self, gateway, source, notify=None, verbose=False, ignores=None):
     """Perform rsync to remote hosts for node."""
     spec = gateway.spec
@@ -44,7 +45,7 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
     import sys  # pylint: disable=W0404
     import subprocess  # pylint: disable=W0404
     from itertools import chain  # pylint: disable=W0404
-    PY3 = sys.version_info[0] > 2
+    py3 = sys.version_info[0] > 2
     subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
     if virtualenv_path:
         if develop_eggs:
@@ -55,7 +56,7 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
                 tuple(chain.from_iterable([('-e', egg) for egg in develop_eggs])))
             subprocess.check_call(args)
         activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
-        if PY3:
+        if py3:
             exec(compile(open(activate_script).read()))  # pylint: disable=W0122
         else:
             execfile(activate_script, {'__file__': activate_script})  # NOQA

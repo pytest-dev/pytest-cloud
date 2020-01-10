@@ -15,19 +15,22 @@ def make_reltoroot(roots, args):
     for arg in args:
         arg = str(arg)
         parts = arg.split(splitcode)
+        # pylint: disable=E1101
         fspath = py.path.local(parts[0])
         for root in roots:
-            x = fspath.relto(root)
-            if x or fspath == root:
-                parts[0] = root.basename + "/" + x
+            rel_root = fspath.relto(root)
+            if rel_root or fspath == root:
+                parts[0] = root.basename + "/" + rel_root
                 break
         res.append(splitcode.join(parts))
     return res
 
 
+# pylint: disable=R0902
 class RSync(object):
     """Send a directory structure (recursively) to one or multiple remote filesystems."""
 
+    # pylint: disable=R0913,W0613
     def __init__(
             self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=None, debug=False,
             bwlimit=None, **kwargs):
@@ -44,10 +47,12 @@ class RSync(object):
 
     def get_ignores(self):
         """Get ignores."""
+        # pylint: disable=E1101
         return [str(py.path.local(ignore).relto(os.path.abspath('.'))) for ignore in self.ignores]
 
     def get_includes(self):
         """Get includes."""
+        # pylint: disable=E1101
         return [str(py.path.local(include).relto(os.path.abspath('.'))) for include in self.includes]
 
     def send(self, raises=True):
