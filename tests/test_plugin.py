@@ -46,6 +46,7 @@ def mocked_dsession(request):
         return {}
 
     def rep():
+        # pylint: disable=R0903
         class Report(object):
             skipped = []
             call = []
@@ -129,6 +130,7 @@ def mocked_rsync(request):
          ]),
     ]
 )
+# pylint: disable=R0913,W0613
 def test_schedule(
         mocked_dsession, mocked_group, mocked_rsync, testdir, host1, host2, user1, user2, cpu_count1,
         cpu_count2, memory1, memory2, mem_per_process, max_processes, result, request):
