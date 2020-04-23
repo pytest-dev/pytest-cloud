@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.1.0
+-----
+
+- Add config option to select cipher for ssh connection (dasm)
+
 3.0.1
 -----
 

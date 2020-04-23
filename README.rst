@@ -85,6 +85,10 @@ Command-line options
     Optional process count limit for `rsync` processes. By default there's no limit so rsyncing will be in parallel
     for all test nodes.
 
+* `--cloud-rsync-cipher`
+    Optional ssh cipher selection for `rsync` processes. aes128-gcm@openssh.com by default.
+    Default cipher is chosen to have the least possible network overhead. Network overhead is system, compilation
+    and CPU architecture dependent, however chosen cipher is showing good results in majority of use cases.
 
 Ini file options
 ----------------

@@ -33,7 +33,7 @@ class RSync(object):
     # pylint: disable=R0913,W0613
     def __init__(
             self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=None, debug=False,
-            bwlimit=None, **kwargs):
+            bwlimit=None, ssh_cipher=None, **kwargs):
         """Initialize new RSync instance."""
         self.sourcedir = str(sourcedir)
         self.targetdir = str(targetdir)
@@ -44,6 +44,7 @@ class RSync(object):
         self.targets = set()
         self.jobs = jobs
         self.bwlimit = bwlimit
+        self.ssh_cipher = ssh_cipher
 
     def get_ignores(self):
         """Get ignores."""
@@ -86,10 +87,11 @@ class RSync(object):
                     '--inplace '
                     '--delete-excluded '
                     '--delete '
-                    '-e \"ssh -T -c arcfour -o Compression=no -x\" '
+                    '-e \"ssh -T -c {ssh_cipher} -o Compression=no -x\" '
                     '. {{}}:{chdir}'.format(
                         verbose='v' if self.verbose else '',
                         bwlimit='--bwlimit={0} '.format(self.bwlimit) if self.bwlimit else '',
+                        ssh_cipher=self.ssh_cipher,
                         chdir=self.targetdir,
                         ignores=ignores_path,
                         includes=includes_path,

@@ -121,6 +121,10 @@ def pytest_addoption(parser):
         "--cloud-rsync-bandwidth-limit",
         help="maximum number of processes per test node", type='int', action="store",
         dest='cloud_rsync_bandwidth_limit', metavar="NUMBER", default=10000)
+    parser.addoption(
+        "--cloud-rsync-cipher",
+        help="cipher for ssh connection used by rsync", type=str,
+        dest="cloud_rsync_cipher", metavar="STRING", default="aes128-gcm@openssh.com")
     parser.addini(
         'cloud_develop_eggs', 'list of python package paths to install in develop mode on the remote side',
         type="pathlist")
@@ -216,7 +220,7 @@ def get_develop_eggs(root_dir, config):
 
 def get_nodes_specs(
         nodes, python=None, chdir=None, virtualenv_path=None, mem_per_process=None,
-        max_processes=None, rsync_max_processes=None, rsync_bandwidth_limit=None, config=None):
+        max_processes=None, rsync_max_processes=None, rsync_bandwidth_limit=None, rsync_cipher=None, config=None):
     """Get nodes specs.
 
     Get list of node names, connect to each of them, get the system information, produce the list of node specs out of
@@ -262,6 +266,7 @@ def get_nodes_specs(
             jobs=rsync_max_processes or len(nodes),
             bwlimit=rsync_bandwidth_limit,
             bandwidth_limit=rsync_bandwidth_limit,
+            ssh_cipher=rsync_cipher,
             **n_m.rsyncoptions)
         print('Detecting connectable test nodes...')
         for node in nodes:
@@ -326,6 +331,7 @@ def check_options(config):
             rsync_bandwidth_limit=config.option.cloud_rsync_bandwidth_limit,
             max_processes=config.option.cloud_max_processes,
             mem_per_process=mem_per_process,
+            rsync_cipher=config.option.cloud_rsync_cipher,
             config=config)
         if node_specs:
             print('Scheduling with {0} parallel test sessions'.format(len(node_specs)))
