@@ -4,7 +4,7 @@ Distributed tests planner plugin for pytest testing framework
 .. image:: https://api.travis-ci.org/pytest-dev/pytest-cloud.png
     :target: https://travis-ci.org/pytest-dev/pytest-cloud
 .. image:: https://img.shields.io/pypi/v/pytest-cloud.svg
-    :target: https://crate.io/packages/pytest-cloud/
+    :target: https://pypi.org/project/pytest-cloud/
 .. image:: https://coveralls.io/repos/pytest-dev/pytest-cloud/badge.png?branch=master
     :target: https://coveralls.io/r/pytest-dev/pytest-cloud
 .. image:: https://readthedocs.org/projects/pytest-cloud/badge/?version=latest
@@ -18,7 +18,7 @@ Install pytest-cloud
 ::
 
     pip install pytest-cloud
-    
+
     # install GNU parallel utility
     # https://www.gnu.org/software/parallel/
     # for MacOS, you can use:
