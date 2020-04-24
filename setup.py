@@ -27,12 +27,13 @@ setup(
     url='https://github.com/pytest-dev/pytest-cloud',
     install_requires=[
         'psutil',
-        'pytest>=2.7.0',
-        'pytest-xdist>=1.22.1',
+        'pytest>=3.6.1',
+        'pytest-xdist>=1.26.0',
         'setuptools',
         'six',
         'timeout-decorator>=0.3.2',
     ],
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
     classifiers=[
         'Development Status :: 6 - Mature',
         'Intended Audience :: Developers',
@@ -45,7 +46,7 @@ setup(
         'Topic :: Utilities',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
-    ] + [('Programming Language :: Python :: %s' % x) for x in '2.7 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7'.split()],
+    ] + [('Programming Language :: Python :: %s' % x) for x in '2.7 3 3.4 3.5 3.6 3.7'.split()],
     tests_require=['tox'],
     entry_points={'pytest11': [
         'pytest-cloud=pytest_cloud.plugin',

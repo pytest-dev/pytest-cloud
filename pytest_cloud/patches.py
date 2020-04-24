@@ -80,7 +80,7 @@ def setup(self):
         self.channel.setcallback(
             self.process_from_remote,
             endmarker=self.ENDMARK)
-    self.channel.send((self.slaveinput, args, option_dict))
+    self.channel.send((self.slaveinput, args, option_dict, None))
 
 
 def apply_patches():

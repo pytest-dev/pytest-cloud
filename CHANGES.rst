@@ -1,10 +1,14 @@
 Changelog
 =========
 
-3.1.0
+4.0.0
 -----
 
 - Add config option to select cipher for ssh connection (dasm)
+- Fix deprecation warnings for pytest (dasm)
+- Support pytest-xdist >= 1.26.0 (dasm)
+- Support pytest >= 3.6.1 (dasm)
+- Remove support for Python 3.0, 3.1, 3.2, 3.3 (consistent with pytest-xdist) (dasm)
 
 3.0.1
 -----

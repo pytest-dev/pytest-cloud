@@ -81,7 +81,7 @@ def pytest_addoption(parser):
     group.addoption(
         "--cloud-python",
         help="python executable name to be used on the remote test nodes."
-        "Default is the executable used on the master.", type='string', action="store",
+        "Default is the executable used on the master.", type=str, action="store",
         dest='cloud_python', metavar="NAME", default='python{0}.{1}'.format(*sys.version_info))
     group._addoption(
         '--cloud-chdir',
@@ -95,31 +95,31 @@ def pytest_addoption(parser):
         help="relative path on remote node to run tests in. Default is pytest_<username>_<current_folder_name>")
     group.addoption(
         "--cloud-nodes",
-        help="space-separated test node list to use for distributed testing", type='string', action=NodesAction,
+        help="space-separated test node list to use for distributed testing", type=str, action=NodesAction,
         dest='cloud_nodes', metavar="'USER@HOST", default=[])
     group.addoption(
         "--cloud-node",
-        help="test node to use for distributed testing", type='string', action="append",
+        help="test node to use for distributed testing", type=str, action="append",
         dest='cloud_nodes', metavar="USER@HOST", default=[])
     group.addoption(
         "--cloud-virtualenv-path",
-        help="relative path to the virtualenv to be used on the remote test nodes.", type='string', action="store",
+        help="relative path to the virtualenv to be used on the remote test nodes.", type=str, action="store",
         dest='cloud_virtualenv_path', metavar="PATH", default=get_virtualenv_path())
     group.addoption(
         "--cloud-mem-per-process",
-        help="amount of memory roughly needed for test process, in megabytes", type='int', action="store",
+        help="amount of memory roughly needed for test process, in megabytes", type=int, action="store",
         dest='cloud_mem_per_process', metavar="NUMBER", default=None)
     group.addoption(
         "--cloud-max-processes",
-        help="maximum number of processes per test node", type='int', action="store",
+        help="maximum number of processes per test node", type=int, action="store",
         dest='cloud_max_processes', metavar="NUMBER", default=None)
     group.addoption(
         "--cloud-rsync-max-processes",
-        help="maximum number of rsync processes", type='int', action="store",
+        help="maximum number of rsync processes", type=int, action="store",
         dest='cloud_rsync_max_processes', metavar="NUMBER", default=None)
     group.addoption(
         "--cloud-rsync-bandwidth-limit",
-        help="maximum number of processes per test node", type='int', action="store",
+        help="maximum number of processes per test node", type=int, action="store",
         dest='cloud_rsync_bandwidth_limit', metavar="NUMBER", default=10000)
     parser.addoption(
         "--cloud-rsync-cipher",
