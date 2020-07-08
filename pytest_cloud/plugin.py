@@ -1,6 +1,6 @@
 """Distributed tests planner plugin for pytest testing framework.
 
-Provides an easy way of running tests amoung several test nodes (slaves).
+Provides an easy way of running tests amoung several test nodes (workers).
 """
 from __future__ import division
 
@@ -37,7 +37,7 @@ class CloudXdistPlugin(object):
 @pytest.mark.trylast
 def pytest_configure(config):
     """Register pytest-cloud's deferred plugin."""
-    if (getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local' and
+    if (getattr(config, 'workerinput', {}).get('workerid', 'local') == 'local' and
             config.option.cloud_nodes and
             config.pluginmanager.getplugin('xdist')):
         config.pluginmanager.register(CloudXdistPlugin())
@@ -314,7 +314,7 @@ def get_nodes_specs(
 
 def check_options(config):
     """Process options to manipulate (produce other options) important for pytest-cloud."""
-    if getattr(config, 'slaveinput', {}).get('slaveid', 'local') == 'local' and config.option.cloud_nodes:
+    if getattr(config, 'workerinput', {}).get('workerid', 'local') == 'local' and config.option.cloud_nodes:
         patches.apply_patches()
         mem_per_process = config.option.cloud_mem_per_process
         if mem_per_process:

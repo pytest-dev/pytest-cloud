@@ -63,8 +63,8 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
 
 
 def setup(self):
-    """Set up a new test slave."""
-    self.log("setting up slave session")
+    """Set up a new test worker."""
+    self.log("setting up worker session")
     spec = self.gateway.spec
     args = self.config.args
     if not spec.popen or spec.chdir:
@@ -80,7 +80,7 @@ def setup(self):
         self.channel.setcallback(
             self.process_from_remote,
             endmarker=self.ENDMARK)
-    self.channel.send((self.slaveinput, args, option_dict, None))
+    self.channel.send((self.workerinput, args, option_dict, None))
 
 
 def apply_patches():

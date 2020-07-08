@@ -13,3 +13,4 @@ These people have contributed to `pytest-cloud`, in alphabetical order:
 * `Loic Dachary <loic@dachary.org>`_
 * `Michael Overmeyer <movermeyer@github.com>`_
 * `Orthographic Pedant <orthographic-pedant@github.com>`_
+* `Zac Hatfield-Dodds <zac@zhd.dev>`_

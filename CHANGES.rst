@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+- Compatible with pytest-xdist >= 1.26.0 *including* 2.0.0+
+
 4.0.0
 -----
 
