@@ -1,10 +1,16 @@
 Changelog
 =========
 
+5.0.2
+-----
+
+- Remove python2 support (bubenkoff)
+
+
 5.0.1
 -----
 
-- Correctly handle default venv locaction (bubenkoff)
+- Correctly handle default venv location (bubenkoff)
 
 
 5.0.0
