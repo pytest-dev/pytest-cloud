@@ -1,11 +1,11 @@
 sudo: false
 language: python
-python: "3.7"
+python: "3.8"
 env:
   matrix:
     - TESTENV=linters
-    - TESTENV=py27
-    - TESTENV=py37
+    - TESTENV=py38
+    - TESTENV=py38-pytest-latest
     - TESTENV=coveralls
 install:
   - pip install tox
