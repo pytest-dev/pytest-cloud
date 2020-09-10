@@ -253,8 +253,8 @@ def get_nodes_specs(
     # pylint: disable=E1101
     group = execnet.Group()
     try:
+        n_m = NodeManager(config, specs=[])
         if virtualenv_path:
-            n_m = NodeManager(config, specs=[])
             virtualenv_path = os.path.relpath(virtualenv_path)
         node_specs = []
         node_caps = {}
