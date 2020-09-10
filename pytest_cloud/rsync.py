@@ -32,8 +32,18 @@ class RSync(object):
 
     # pylint: disable=R0913,W0613
     def __init__(
-            self, sourcedir, targetdir, verbose=False, ignores=None, includes=None, jobs=None, debug=False,
-            bwlimit=None, ssh_cipher=None, **kwargs):
+        self,
+        sourcedir,
+        targetdir,
+        verbose=False,
+        ignores=None,
+        includes=None,
+        jobs=None,
+        debug=False,
+        bwlimit=None,
+        ssh_cipher=None,
+        **kwargs
+    ):
         """Initialize new RSync instance."""
         self.sourcedir = str(sourcedir)
         self.targetdir = str(targetdir)
@@ -49,54 +59,67 @@ class RSync(object):
     def get_ignores(self):
         """Get ignores."""
         # pylint: disable=E1101
-        return [str(py.path.local(ignore).relto(os.path.abspath('.'))) for ignore in self.ignores]
+        return [
+            str(py.path.local(ignore).relto(os.path.abspath(".")))
+            for ignore in self.ignores
+        ]
 
     def get_includes(self):
         """Get includes."""
         # pylint: disable=E1101
-        return [str(py.path.local(include).relto(os.path.abspath('.'))) for include in self.includes]
+        return [
+            str(py.path.local(include).relto(os.path.abspath(".")))
+            for include in self.includes
+        ]
 
     def send(self, raises=True):
         """Send a sourcedir to all added targets.
 
         Flag indicates whether to raise an error or return in case of lack of targets.
         """
-        parallel = find_executable('parallel')
+        parallel = find_executable("parallel")
         if not parallel:
-            raise RuntimeError('parallel is not found.')
+            raise RuntimeError("parallel is not found.")
         fd_ignores, ignores_path = tempfile.mkstemp()
         fd_includes, includes_path = tempfile.mkstemp()
-        fd_ignores = os.fdopen(fd_ignores, 'w')
-        fd_includes = os.fdopen(fd_includes, 'w')
+        fd_ignores = os.fdopen(fd_ignores, "w")
+        fd_includes = os.fdopen(fd_includes, "w")
         try:
-            fd_ignores.writelines(ignore + '\n' for ignore in self.get_ignores())
+            fd_ignores.writelines(ignore + "\n" for ignore in self.get_ignores())
             fd_ignores.flush()
-            fd_includes.writelines(include + '\n' for include in self.get_includes())
+            fd_includes.writelines(include + "\n" for include in self.get_includes())
             fd_includes.flush()
             subprocess.call(
-                [parallel] + (['--verbose'] if self.verbose else []) + [
-                    '--gnu',
-                    '--jobs={0}'.format(self.jobs or len(self.targets)),
-                    'rsync -arHAXx{verbose} '
-                    '{bwlimit}'
-                    '--ignore-errors '
-                    '--include-from={includes} '
-                    '--exclude-from={ignores} '
-                    '--numeric-ids '
-                    '--force '
-                    '--inplace '
-                    '--delete-excluded '
-                    '--delete '
-                    '-e \"ssh -T -c {ssh_cipher} -o Compression=no -x\" '
-                    '. {{}}:{chdir}'.format(
-                        verbose='v' if self.verbose else '',
-                        bwlimit='--bwlimit={0} '.format(self.bwlimit) if self.bwlimit else '',
+                [parallel]
+                + (["--verbose"] if self.verbose else [])
+                + [
+                    "--gnu",
+                    "--jobs={0}".format(self.jobs or len(self.targets)),
+                    "rsync -arHAXx{verbose} "
+                    "{bwlimit}"
+                    "--ignore-errors "
+                    "--include-from={includes} "
+                    "--exclude-from={ignores} "
+                    "--numeric-ids "
+                    "--force "
+                    "--inplace "
+                    "--delete-excluded "
+                    "--delete "
+                    '-e "ssh -T -c {ssh_cipher} -o Compression=no -x" '
+                    ". {{}}:{chdir}".format(
+                        verbose="v" if self.verbose else "",
+                        bwlimit="--bwlimit={0} ".format(self.bwlimit)
+                        if self.bwlimit
+                        else "",
                         ssh_cipher=self.ssh_cipher,
                         chdir=self.targetdir,
                         ignores=ignores_path,
                         includes=includes_path,
-                    ), ':::'
-                ] + list(self.targets))
+                    ),
+                    ":::",
+                ]
+                + list(self.targets)
+            )
         finally:
             fd_ignores.close()
             fd_includes.close()

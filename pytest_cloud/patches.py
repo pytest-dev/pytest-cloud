@@ -12,9 +12,12 @@ def rsync(self, gateway, source, notify=None, verbose=False, ignores=None):
     """Perform rsync to remote hosts for node."""
     spec = gateway.spec
     if spec.popen and not spec.chdir:
-        gateway.remote_exec("""
+        gateway.remote_exec(
+            """
             import sys ; sys.path.insert(0, %r)
-        """ % os.path.dirname(str(source))).waitclose()
+        """
+            % os.path.dirname(str(source))
+        ).waitclose()
         return
     if (spec, source) in self._rsynced_specs:
         return
@@ -45,21 +48,32 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
     import sys  # pylint: disable=W0404,C0415
     import subprocess  # pylint: disable=W0404,C0415
     from itertools import chain  # pylint: disable=W0404,C0415
+
     py3 = sys.version_info[0] > 2
-    subprocess.check_call(['find', '.', '-name', '*.pyc', '-delete'])
+    subprocess.check_call(["find", ".", "-name", "*.pyc", "-delete"])
     if virtualenv_path:
         if develop_eggs:
-            python_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'python')))
-            pip_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'pip')))
+            python_script = os.path.abspath(
+                os.path.normpath(os.path.join(virtualenv_path, "bin", "python"))
+            )
+            pip_script = os.path.abspath(
+                os.path.normpath(os.path.join(virtualenv_path, "bin", "pip"))
+            )
             args = (
-                (python_script, pip_script, 'install', '--no-index', '--no-deps') +
-                tuple(chain.from_iterable([('-e', egg) for egg in develop_eggs])))
+                python_script,
+                pip_script,
+                "install",
+                "--no-index",
+                "--no-deps",
+            ) + tuple(chain.from_iterable([("-e", egg) for egg in develop_eggs]))
             subprocess.check_call(args)
-        activate_script = os.path.abspath(os.path.normpath(os.path.join(virtualenv_path, 'bin', 'activate_this.py')))
+        activate_script = os.path.abspath(
+            os.path.normpath(os.path.join(virtualenv_path, "bin", "activate_this.py"))
+        )
         if py3:
             exec(compile(open(activate_script).read()))  # pylint: disable=W0122
         else:
-            execfile(activate_script, {'__file__': activate_script})  # NOQA
+            execfile(activate_script, {"__file__": activate_script})  # NOQA
 
 
 def setup(self):
@@ -73,13 +87,11 @@ def setup(self):
     if spec.popen and not spec.via:
         name = "popen-%s" % self.gateway.id
         basetemp = self.config._tmpdirhandler.getbasetemp()
-        option_dict['basetemp'] = str(basetemp.join(name))
+        option_dict["basetemp"] = str(basetemp.join(name))
     self.config.hook.pytest_configure_node(node=self)
     self.channel = self.gateway.remote_exec(xdist.remote)
     if self.putevent:
-        self.channel.setcallback(
-            self.process_from_remote,
-            endmarker=self.ENDMARK)
+        self.channel.setcallback(self.process_from_remote, endmarker=self.ENDMARK)
     self.channel.send((self.workerinput, args, option_dict, None))
 
 

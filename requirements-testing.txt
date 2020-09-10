@@ -1,6 +1,4 @@
 coverage
 mock
-pylama
-pylama_pylint
-pytest-pep8
+pytest-black
 astroid
