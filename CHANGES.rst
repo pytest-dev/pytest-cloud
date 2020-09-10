@@ -1,6 +1,12 @@
 Changelog
 =========
 
+5.0.1
+-----
+
+- Correctly handle default venv locaction (bubenkoff)
+
+
 5.0.0
 -----
 
