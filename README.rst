@@ -1,12 +1,14 @@
 Distributed tests planner plugin for pytest testing framework
 =============================================================
 
-.. image:: https://api.travis-ci.org/pytest-dev/pytest-cloud.png
-    :target: https://travis-ci.org/pytest-dev/pytest-cloud
 .. image:: https://img.shields.io/pypi/v/pytest-cloud.svg
-    :target: https://pypi.org/project/pytest-cloud/
-.. image:: https://coveralls.io/repos/pytest-dev/pytest-cloud/badge.png?branch=master
-    :target: https://coveralls.io/r/pytest-dev/pytest-cloud
+   :target: https://pypi.python.org/pypi/pytest-cloud
+.. image:: https://img.shields.io/pypi/pyversions/pytest-cloud.svg
+  :target: https://pypi.python.org/pypi/pytest-cloud
+.. image:: https://img.shields.io/coveralls/pytest-dev/pytest-cloud/master.svg
+   :target: https://coveralls.io/r/pytest-dev/pytest-cloud
+.. image:: https://travis-ci.org/pytest-dev/pytest-cloud.svg?branch=master
+    :target: https://travis-ci.org/pytest-dev/pytest-cloud
 .. image:: https://readthedocs.org/projects/pytest-cloud/badge/?version=latest
     :target: https://readthedocs.org/projects/pytest-cloud/?badge=latest
     :alt: Documentation Status
