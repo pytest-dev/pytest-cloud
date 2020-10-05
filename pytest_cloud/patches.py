@@ -49,7 +49,6 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
     import subprocess  # pylint: disable=W0404,C0415
     from itertools import chain  # pylint: disable=W0404,C0415
 
-    py3 = sys.version_info[0] > 2
     subprocess.check_call(["find", ".", "-name", "*.pyc", "-delete"])
     if virtualenv_path:
         if develop_eggs:
@@ -59,6 +58,7 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
             pip_script = os.path.abspath(
                 os.path.normpath(os.path.join(virtualenv_path, "bin", "pip"))
             )
+            egg = None
             args = (
                 python_script,
                 pip_script,
@@ -67,13 +67,11 @@ def activate_env(channel, virtualenv_path, develop_eggs=None):
                 "--no-deps",
             ) + tuple(chain.from_iterable([("-e", egg) for egg in develop_eggs]))
             subprocess.check_call(args)
+
         activate_script = os.path.abspath(
             os.path.normpath(os.path.join(virtualenv_path, "bin", "activate_this.py"))
         )
-        if py3:
-            exec(compile(open(activate_script).read()))  # pylint: disable=W0122
-        else:
-            execfile(activate_script, {"__file__": activate_script})  # NOQA
+        exec(open(activate_script).read(), {'__file__': activate_script})
 
 
 def setup(self):

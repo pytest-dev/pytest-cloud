@@ -1,6 +1,13 @@
 Changelog
 =========
 
+5.0.3
+-----
+
+- Fixes issue #21 (dasm)
+- Fully dropped python2 support (dasm)
+- Added explicit requirement for virtualenv (dasm)
+
 5.0.2
 -----
 

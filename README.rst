@@ -45,6 +45,10 @@ for your project on remote test nodes globally - just make sure that your virtua
 your project folder - that's a requirement.
 It will also detect a root folder of the test environment (project root), and will `rsync` it to all test nodes.
 
+NOTE:
+> `pytest-cloud` uses `virtualenv` instead of built-in `venv` package.
+
+
 ATM only ssh transport is supported. So ensure that you have at least public key auth enabled to your test nodes
 from the master node (where py.test is executed).
 

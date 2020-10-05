@@ -32,8 +32,9 @@ setup(
         'setuptools',
         'six',
         'timeout-decorator>=0.3.2',
+        'virtualenv',
     ],
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    python_requires=">=3.4.*",
     classifiers=[
         'Development Status :: 6 - Mature',
         'Intended Audience :: Developers',
